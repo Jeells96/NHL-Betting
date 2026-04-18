@@ -825,10 +825,16 @@ async function loadAllStats() {
     fetchSkaterStats().catch(() => []),
   ]);
 
+  // Normalize team abbrevs
+  const getAbbr = (t) => {
+    const raw = (t.teamAbbrev || t.triCode || t.abbr || '').toUpperCase();
+    return raw;
+  };
+
   const teamSummary = {};
   for (const t of summary) {
-    const abbr = t.teamAbbrev || t.triCode;
-    if (!abbr) continue;
+    const abbr = getAbbr(t);
+    if (!abbr || abbr.length < 2) continue;
     const gp = t.gamesPlayed || 1;
     teamSummary[abbr] = {
       name: t.teamFullName,
@@ -845,10 +851,12 @@ async function loadAllStats() {
     };
   }
 
+  console.log('Loaded team summary for:', Object.keys(teamSummary).sort());
+
   const teamP1 = {};
   for (const t of p1For) {
-    const abbr = t.teamAbbrev || t.triCode;
-    if (!abbr) continue;
+    const abbr = getAbbr(t);
+    if (!abbr || abbr.length < 2) continue;
     const gp = t.gamesPlayed || teamSummary[abbr]?.gp || 1;
     teamP1[abbr] = {
       gp,
@@ -862,8 +870,8 @@ async function loadAllStats() {
   const teamP1Against = {};
   if (p1AgainstRaw && p1AgainstRaw.length) {
     for (const t of p1AgainstRaw) {
-      const abbr = t.teamAbbrev || t.triCode;
-      if (!abbr) continue;
+      const abbr = getAbbr(t);
+      if (!abbr || abbr.length < 2) continue;
       const gp = t.gamesPlayed || teamSummary[abbr]?.gp || 1;
       teamP1Against[abbr] = {
         gp,
@@ -885,11 +893,14 @@ async function loadAllStats() {
     }
   }
 
+  console.log('Loaded P1 for:', Object.keys(teamP1).sort());
+  console.log('Loaded P1 against for:', Object.keys(teamP1Against).sort());
+
   // Index goalies by team
   const goalieStats = {};
   for (const g of goalies) {
-    const abbr = g.teamAbbrev || g.triCode;
-    if (!abbr) continue;
+    const abbr = getAbbr(g);
+    if (!abbr || abbr.length < 2) continue;
     if (!goalieStats[abbr]) goalieStats[abbr] = [];
     goalieStats[abbr].push({
       id: g.playerId,
@@ -912,8 +923,8 @@ async function loadAllStats() {
   // Index skaters by team and filter for scoring leaders
   const skaterStats = {};
   for (const s of skaters) {
-    const abbr = s.teamAbbrev || s.triCode;
-    if (!abbr) continue;
+    const abbr = getAbbr(s);
+    if (!abbr || abbr.length < 2) continue;
     if (!skaterStats[abbr]) skaterStats[abbr] = [];
     const gp = s.gamesPlayed || 1;
     skaterStats[abbr].push({
@@ -930,6 +941,9 @@ async function loadAllStats() {
     skaterStats[abbr].sort((a, b) => (b.points || 0) - (a.points || 0));
   }
 
+  console.log('Loaded goalies for:', Object.keys(goalieStats).sort());
+  console.log('Loaded skaters for:', Object.keys(skaterStats).sort());
+
   return { teamSummary, teamP1, teamP1Against, goalieStats, skaterStats };
 }
 
@@ -940,6 +954,14 @@ function parseMinutes(timeStr) {
   if (parts.length === 2) return parseInt(parts[0]) * 60 + parseInt(parts[1]);
   return 0;
 }
+
+// League average fallback for when stats don't load
+const LEAGUE_AVERAGES = {
+  'GF_PER_GAME': 3.1,
+  'GA_PER_GAME': 3.1,
+  'P1_GF': 1.85,
+  'P1_GA': 1.85,
+};
 
 // ============================================================================
 // PREDICTIONS
