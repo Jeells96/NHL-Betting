@@ -736,9 +736,23 @@ function logoUrl(abbr) {
 // API
 // ============================================================================
 async function fetchJson(url, opts = {}) {
-  const res = await fetch(url, { ...opts, cache: 'no-store' });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  // Try direct fetch first, fall back to CORS proxy if blocked
+  try {
+    const res = await fetch(url, { ...opts, cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  } catch (directErr) {
+    // If direct fetch fails (CORS), use public proxy
+    try {
+      const proxiedUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+      const res = await fetch(proxiedUrl, { ...opts, cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch (proxyErr) {
+      console.error('Both direct and proxied fetch failed:', directErr, proxyErr);
+      throw new Error('Failed to fetch from NHL API');
+    }
+  }
 }
 
 async function fetchSchedule(date) {
