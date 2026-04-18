@@ -522,7 +522,7 @@ letter-spacing: 0.1em;
     <div class="brand">
       <span class="brand-dot"></span>
       <span class="brand-mark">PUCK PROPS</span>
-      <span class="brand-sub">v2.0 · NHL</span>
+      <span class="brand-sub">v3.0 · NHL</span>
     </div>
     <div class="header-actions">
       <div id="status-pill" class="status-pill"><span class="dot"></span><span id="status-text">LOADING</span></div>
@@ -765,17 +765,12 @@ async function fetchSchedule(date) {
 }
 
 async function fetchTeamSummary() {
-  // Use standings endpoint from api-web (same domain as schedule, known to work)
+  // Use standings endpoint for season totals (fallback baseline)
   try {
     console.log('[NHL] Fetching standings...');
     const data = await fetchJson(`${NHL_WEB}/standings/now`);
     const teams = data.standings || [];
     console.log('[NHL] Standings loaded:', teams.length, 'teams');
-    if (teams.length > 0) {
-      console.log('[NHL] Sample team keys:', Object.keys(teams[0]));
-      console.log('[NHL] Sample team:', teams[0].teamAbbrev?.default, teams[0].teamName?.default);
-    }
-    // Normalize to same shape as stats endpoint
     return teams.map(t => ({
       teamAbbrev: t.teamAbbrev?.default || t.teamAbbrev,
       triCode: t.teamAbbrev?.default || t.teamAbbrev,
@@ -796,35 +791,141 @@ async function fetchTeamSummary() {
   }
 }
 
-async function fetchGoalsByPeriod() {
-  // api.nhle.com/stats doesn't reliably work through CORS proxies
-  // Skip — we'll estimate P1 from total GF using league ratio
-  console.log('[NHL] Skipping period-by-period endpoint (unreliable via proxy)');
-  return [];
+// Fetch a team's full-season schedule to get recent completed games
+async function fetchTeamSchedule(abbr) {
+  try {
+    const data = await fetchJson(`${NHL_WEB}/club-schedule-season/${abbr}/now`);
+    return data.games || [];
+  } catch (e) {
+    console.warn(`[NHL] Schedule fetch failed for ${abbr}:`, e.message);
+    return [];
+  }
 }
 
-async function fetchGoalsAgainstByPeriod() {
-  console.log('[NHL] Skipping period-against endpoint (unreliable via proxy)');
-  return null;
+// Fetch boxscore for a completed game to get period-by-period scoring
+async function fetchBoxscore(gameId) {
+  try {
+    const data = await fetchJson(`${NHL_WEB}/gamecenter/${gameId}/boxscore`);
+    return data;
+  } catch (e) {
+    return null;
+  }
 }
 
-async function fetchGoalieStats() {
-  // Skip for now — stats endpoint unreliable
-  return [];
+// Fetch landing page which includes linescore with period scores
+async function fetchLanding(gameId) {
+  try {
+    const data = await fetchJson(`${NHL_WEB}/gamecenter/${gameId}/landing`);
+    return data;
+  } catch (e) {
+    return null;
+  }
 }
 
-async function fetchSkaterStats() {
-  return [];
+// Build per-team recent-form stats by fetching last N completed games
+// Returns: { [abbr]: { recentGp, recentGf, recentGa, recentP1Gf, recentP1Ga, gamesAnalyzed } }
+async function buildRecentForm(teamAbbrs, lastN = 10) {
+  console.log('[NHL] Building recent-form stats for', teamAbbrs.length, 'teams, last', lastN, 'games each');
+  const results = {};
+
+  // Fetch schedules for all teams in parallel
+  const schedulePromises = teamAbbrs.map(abbr =>
+    fetchTeamSchedule(abbr).then(games => ({ abbr, games }))
+  );
+  const schedules = await Promise.all(schedulePromises);
+
+  // For each team, find last N completed games
+  const allGameFetches = [];
+  const teamGameMap = {}; // abbr -> [gameIds]
+
+  for (const { abbr, games } of schedules) {
+    // Filter to completed games only, sort by date descending
+    const completed = games
+      .filter(g => g.gameState === 'OFF' || g.gameState === 'FINAL')
+      .sort((a, b) => new Date(b.gameDate) - new Date(a.gameDate))
+      .slice(0, lastN);
+
+    teamGameMap[abbr] = completed.map(g => ({
+      id: g.id,
+      date: g.gameDate,
+      homeAbbr: g.homeTeam?.abbrev,
+      awayAbbr: g.awayTeam?.abbrev,
+      homeScore: g.homeTeam?.score ?? 0,
+      awayScore: g.awayTeam?.score ?? 0,
+    }));
+
+    // Queue boxscore fetches (dedup by game ID)
+    for (const g of completed) {
+      allGameFetches.push(g.id);
+    }
+  }
+
+  // Dedupe game IDs (same game appears for both teams)
+  const uniqueGameIds = [...new Set(allGameFetches)];
+  console.log('[NHL] Fetching', uniqueGameIds.length, 'unique game landings for period data...');
+
+  // Fetch all boxscores in parallel (but throttle to avoid hammering the API)
+  const gameData = {};
+  const BATCH_SIZE = 8;
+  for (let i = 0; i < uniqueGameIds.length; i += BATCH_SIZE) {
+    const batch = uniqueGameIds.slice(i, i + BATCH_SIZE);
+    const batchResults = await Promise.all(
+      batch.map(id => fetchLanding(id).then(data => ({ id, data })))
+    );
+    for (const { id, data } of batchResults) {
+      if (data) gameData[id] = data;
+    }
+  }
+  console.log('[NHL] Got landing data for', Object.keys(gameData).length, 'games');
+
+  // Aggregate per team
+  for (const abbr of teamAbbrs) {
+    const games = teamGameMap[abbr] || [];
+    let gp = 0, gf = 0, ga = 0, p1Gf = 0, p1Ga = 0;
+
+    for (const g of games) {
+      const landing = gameData[g.id];
+      if (!landing) continue;
+
+      const linescore = landing.summary?.linescore || landing.linescore;
+      if (!linescore || !linescore.byPeriod) continue;
+
+      const isHome = g.homeAbbr === abbr;
+      const p1 = linescore.byPeriod.find(p => p.periodDescriptor?.number === 1);
+      if (!p1) continue;
+
+      gp++;
+      gf += isHome ? g.homeScore : g.awayScore;
+      ga += isHome ? g.awayScore : g.homeScore;
+      p1Gf += isHome ? (p1.home || 0) : (p1.away || 0);
+      p1Ga += isHome ? (p1.away || 0) : (p1.home || 0);
+    }
+
+    results[abbr] = {
+      recentGp: gp,
+      recentGf: gf,
+      recentGa: ga,
+      recentP1Gf: p1Gf,
+      recentP1Ga: p1Ga,
+      recentGfPerGame: gp ? gf / gp : 0,
+      recentGaPerGame: gp ? ga / gp : 0,
+      recentP1GfPerGame: gp ? p1Gf / gp : 0,
+      recentP1GaPerGame: gp ? p1Ga / gp : 0,
+    };
+  }
+
+  return results;
 }
 
-async function loadAllStats() {
-  const [summary, p1For, p1AgainstRaw, goalies, skaters] = await Promise.all([
-    fetchTeamSummary().catch(() => []),
-    fetchGoalsByPeriod().catch(() => []),
-    fetchGoalsAgainstByPeriod(),
-    fetchGoalieStats().catch(() => []),
-    fetchSkaterStats().catch(() => []),
-  ]);
+// Placeholder stubs (no longer used but kept so loadAllStats signature doesn't break)
+async function fetchGoalsByPeriod() { return []; }
+async function fetchGoalsAgainstByPeriod() { return null; }
+async function fetchGoalieStats() { return []; }
+async function fetchSkaterStats() { return []; }
+
+async function loadAllStats(teamAbbrs = []) {
+  // Load season-long baseline from standings
+  const summary = await fetchTeamSummary().catch(() => []);
 
   // Normalize team abbrevs
   const getAbbr = (t) => {
@@ -852,89 +953,83 @@ async function loadAllStats() {
     };
   }
 
-  console.log('Loaded team summary for:', Object.keys(teamSummary).sort());
+  console.log('[APP] Loaded season stats for', Object.keys(teamSummary).length, 'teams');
 
-  // P1 data isn't reliably available via proxy — estimate from team's GF/GA
-  // Historical NHL: 1st period ≈ 29% of total scoring (slightly less than 33% due to fewer goals early)
+  // Build real recent-form data (last 10 games) for teams playing today
+  let recentForm = {};
+  if (teamAbbrs.length > 0) {
+    try {
+      recentForm = await buildRecentForm(teamAbbrs, 10);
+      console.log('[APP] Built recent-form data for', Object.keys(recentForm).length, 'teams');
+      // Log sample
+      const sample = Object.keys(recentForm)[0];
+      if (sample) {
+        const r = recentForm[sample];
+        console.log(`[APP] ${sample} recent-form (${r.recentGp} games): ${fmtNum(r.recentGfPerGame)} GF, ${fmtNum(r.recentGaPerGame)} GA, ${fmtNum(r.recentP1GfPerGame)} P1 GF, ${fmtNum(r.recentP1GaPerGame)} P1 GA`);
+      }
+    } catch (e) {
+      console.error('[APP] Recent-form build failed:', e.message);
+    }
+  }
+
+  // Build P1 data using WEIGHTED blend of recent form (70%) + league share fallback (30%)
+  // When recent-form data is available, use it directly for real period splits
   const teamP1 = {};
-  const shareP1GF = 0.29;
-  for (const abbr in teamSummary) {
-    const s = teamSummary[abbr];
-    teamP1[abbr] = {
-      gp: s.gp,
-      p1gf: s.gf * shareP1GF,
-      p1gfPerGame: s.gfPerGame * shareP1GF,
-      estimated: true,
-    };
-  }
-
   const teamP1Against = {};
-  const shareP1GA = 0.29;
+  const LEAGUE_P1_SHARE = 0.28; // NHL historical 1st period scoring share
+
   for (const abbr in teamSummary) {
     const s = teamSummary[abbr];
-    teamP1Against[abbr] = {
-      gp: s.gp,
-      p1ga: s.ga * shareP1GA,
-      p1gaPerGame: s.gaPerGame * shareP1GA,
-      estimated: true,
-    };
+    const r = recentForm[abbr];
+
+    if (r && r.recentGp >= 3) {
+      // Use real recent-form data (blended 70% recent / 30% season)
+      teamP1[abbr] = {
+        gp: r.recentGp,
+        p1gfPerGame: r.recentP1GfPerGame * 0.7 + (s.gfPerGame * LEAGUE_P1_SHARE) * 0.3,
+        realData: true,
+        recentGp: r.recentGp,
+      };
+      teamP1Against[abbr] = {
+        gp: r.recentGp,
+        p1gaPerGame: r.recentP1GaPerGame * 0.7 + (s.gaPerGame * LEAGUE_P1_SHARE) * 0.3,
+        realData: true,
+        recentGp: r.recentGp,
+      };
+    } else {
+      // Fallback to league-share estimate
+      teamP1[abbr] = {
+        gp: s.gp,
+        p1gfPerGame: s.gfPerGame * LEAGUE_P1_SHARE,
+        estimated: true,
+      };
+      teamP1Against[abbr] = {
+        gp: s.gp,
+        p1gaPerGame: s.gaPerGame * LEAGUE_P1_SHARE,
+        estimated: true,
+      };
+    }
   }
 
-  console.log('[APP] P1 estimated from season totals for', Object.keys(teamP1).length, 'teams');
-
-  // Index goalies by team
-  const goalieStats = {};
-  for (const g of goalies) {
-    const abbr = getAbbr(g);
-    if (!abbr || abbr.length < 2) continue;
-    if (!goalieStats[abbr]) goalieStats[abbr] = [];
-    goalieStats[abbr].push({
-      id: g.playerId,
-      name: g.skaterFullName,
-      gp: g.gamesPlayed || 0,
-      wins: g.wins || 0,
-      losses: g.losses || 0,
-      otl: g.otLosses || 0,
-      minPlayed: g.timeOnIce ? parseMinutes(g.timeOnIce) : 0,
-      sv: g.savePct ?? 0,
-      gaa: g.goalAgainstAverage ?? 0,
-      shutouts: g.shutouts || 0,
-    });
-  }
-  // Sort by games played (to identify primary starter)
-  for (const abbr in goalieStats) {
-    goalieStats[abbr].sort((a, b) => (b.gp || 0) - (a.gp || 0));
+  // Also blend season GF/GA with recent-form (70/30) for teams we have data for
+  for (const abbr in teamSummary) {
+    const r = recentForm[abbr];
+    if (r && r.recentGp >= 3) {
+      const s = teamSummary[abbr];
+      // Store the blended values alongside the pure season values
+      s.blendedGfPerGame = r.recentGfPerGame * 0.7 + s.gfPerGame * 0.3;
+      s.blendedGaPerGame = r.recentGaPerGame * 0.7 + s.gaPerGame * 0.3;
+      s.recentGp = r.recentGp;
+      s.recentGfPerGame = r.recentGfPerGame;
+      s.recentGaPerGame = r.recentGaPerGame;
+      s.hasRecentForm = true;
+    }
   }
 
-  // Index skaters by team and filter for scoring leaders
-  const skaterStats = {};
-  for (const s of skaters) {
-    const abbr = getAbbr(s);
-    if (!abbr || abbr.length < 2) continue;
-    if (!skaterStats[abbr]) skaterStats[abbr] = [];
-    const gp = s.gamesPlayed || 1;
-    skaterStats[abbr].push({
-      id: s.playerId,
-      name: s.skaterFullName,
-      gp,
-      goals: s.goals || 0,
-      assists: s.assists || 0,
-      points: s.points || 0,
-      gperGame: (s.goals || 0) / gp,
-    });
-  }
-  for (const abbr in skaterStats) {
-    skaterStats[abbr].sort((a, b) => (b.points || 0) - (a.points || 0));
-  }
-
-  console.log('Loaded goalies for:', Object.keys(goalieStats).sort());
-  console.log('Loaded skaters for:', Object.keys(skaterStats).sort());
-
-  return { teamSummary, teamP1, teamP1Against, goalieStats, skaterStats };
+  return { teamSummary, teamP1, teamP1Against, goalieStats: {}, skaterStats: {}, recentForm };
 }
 
 function parseMinutes(timeStr) {
-  // Parse "MM:SS" format
   if (!timeStr) return 0;
   const parts = timeStr.split(':');
   if (parts.length === 2) return parseInt(parts[0]) * 60 + parseInt(parts[1]);
@@ -960,14 +1055,12 @@ function predict(homeAbbr, awayAbbr, gameId) {
   const ap = state.teamP1[awayAbbr];
   const hpa = state.teamP1Against[homeAbbr];
   const apa = state.teamP1Against[awayAbbr];
-  const hg = state.goalieStats[homeAbbr]?.[0];
-  const ag = state.goalieStats[awayAbbr]?.[0];
 
-  // Use actual stats if available, fall back to league average
-  const homeGF = hs?.gfPerGame ?? LEAGUE_AVERAGES.GF_PER_GAME;
-  const homeGA = hs?.gaPerGame ?? LEAGUE_AVERAGES.GA_PER_GAME;
-  const awayGF = as?.gfPerGame ?? LEAGUE_AVERAGES.GF_PER_GAME;
-  const awayGA = as?.gaPerGame ?? LEAGUE_AVERAGES.GA_PER_GAME;
+  // Use BLENDED stats (70% recent-form / 30% season) when available, else season, else league avg
+  const homeGF = hs?.blendedGfPerGame ?? hs?.gfPerGame ?? LEAGUE_AVERAGES.GF_PER_GAME;
+  const homeGA = hs?.blendedGaPerGame ?? hs?.gaPerGame ?? LEAGUE_AVERAGES.GA_PER_GAME;
+  const awayGF = as?.blendedGfPerGame ?? as?.gfPerGame ?? LEAGUE_AVERAGES.GF_PER_GAME;
+  const awayGA = as?.blendedGaPerGame ?? as?.gaPerGame ?? LEAGUE_AVERAGES.GA_PER_GAME;
 
   // Base full game expected
   let homeExp = (homeGF + awayGA) / 2;
@@ -975,20 +1068,7 @@ function predict(homeAbbr, awayAbbr, gameId) {
   if (state.homeAdj) { homeExp += HOME_BOOST; awayExp -= HOME_BOOST / 2; }
   let totalExp = homeExp + awayExp;
 
-  // GOALIE IMPACT: Adjust expected goals based on goalie save% anomaly
-  const leagueAvgSv = 0.920;
-  if (hg && hg.sv > 0) {
-    const homeGoalieAdjust = (leagueAvgSv - hg.sv) * awayGF * 0.5;
-    awayExp += homeGoalieAdjust;
-  }
-  if (ag && ag.sv > 0) {
-    const awayGoalieAdjust = (leagueAvgSv - ag.sv) * homeGF * 0.5;
-    homeExp += awayGoalieAdjust;
-  }
-  totalExp = homeExp + awayExp;
-
-  // 1st period expected
-  let p1Exp = null;
+  // 1st period expected (using real recent-form P1 data if available)
   const homeP1GF = hp?.p1gfPerGame ?? LEAGUE_AVERAGES.P1_GF;
   const homeP1GA = hpa?.p1gaPerGame ?? LEAGUE_AVERAGES.P1_GA;
   const awayP1GF = ap?.p1gfPerGame ?? LEAGUE_AVERAGES.P1_GF;
@@ -996,10 +1076,7 @@ function predict(homeAbbr, awayAbbr, gameId) {
 
   const home1 = (homeP1GF + awayP1GA) / 2;
   const away1 = (awayP1GF + homeP1GA) / 2;
-  p1Exp = home1 + away1;
-  // Goalie impact on P1 (less pronounced)
-  if (hg && hg.sv > 0) p1Exp += (leagueAvgSv - hg.sv) * awayP1GF * 0.25;
-  if (ag && ag.sv > 0) p1Exp += (leagueAvgSv - ag.sv) * homeP1GF * 0.25;
+  const p1Exp = home1 + away1;
 
   const totalRec = recommend(totalExp, state.totalLine);
   const p1Rec = recommend(p1Exp, state.p1Line);
@@ -1019,6 +1096,10 @@ function predict(homeAbbr, awayAbbr, gameId) {
     correlation = 'hedged';
   }
 
+  // Data quality: did we use real recent-form data?
+  const hasRealP1Data = hp?.realData && ap?.realData && hpa?.realData && apa?.realData;
+  const hasRecentForm = hs?.hasRecentForm && as?.hasRecentForm;
+
   return {
     totalExp,
     p1Exp,
@@ -1028,14 +1109,16 @@ function predict(homeAbbr, awayAbbr, gameId) {
     p1Rec,
     correlation,
     estimated: !hs || !as,
+    hasRealP1Data,
+    hasRecentForm,
     home: hs,
     away: as,
     homeP1: hp,
     awayP1: ap,
     homeP1A: hpa,
     awayP1A: apa,
-    homeGoalie: hg,
-    awayGoalie: ag,
+    homeGoalie: null,
+    awayGoalie: null,
   };
 }
 
@@ -1400,23 +1483,42 @@ async function refreshAll() {
 
   try {
     console.log('[APP] Loading data for date:', state.date);
-    console.log('[APP] Season:', state.seasonId, 'Type:', state.seasonType === 2 ? 'Regular' : 'Playoffs');
-    const [games, stats] = await Promise.all([
-      fetchSchedule(state.date).catch(e => { throw new Error('Schedule: ' + e.message); }),
-      loadAllStats().catch(e => { throw new Error('Stats: ' + e.message); }),
-    ]);
+
+    // Step 1: Fetch today's schedule first so we know which teams to analyze
+    const games = await fetchSchedule(state.date).catch(e => { throw new Error('Schedule: ' + e.message); });
     state.games = games;
+    console.log('[APP] Loaded', games.length, 'games');
+
+    // Step 2: Extract team abbrevs from today's slate
+    const teamAbbrs = new Set();
+    for (const g of games) {
+      if (g.homeTeam?.abbrev) teamAbbrs.add(g.homeTeam.abbrev.toUpperCase());
+      if (g.awayTeam?.abbrev) teamAbbrs.add(g.awayTeam.abbrev.toUpperCase());
+    }
+    const teamList = [...teamAbbrs];
+    console.log('[APP] Teams playing today:', teamList);
+
+    // Render games immediately with skeleton (fast feedback)
+    renderGames();
+
+    // Step 3: Load stats + recent-form data for teams playing
+    setStatus('', 'ANALYZING');
+    const stats = await loadAllStats(teamList).catch(e => { throw new Error('Stats: ' + e.message); });
     state.teamSummary = stats.teamSummary;
     state.teamP1 = stats.teamP1;
     state.teamP1Against = stats.teamP1Against;
     state.goalieStats = stats.goalieStats;
     state.skaterStats = stats.skaterStats;
+    state.recentForm = stats.recentForm;
     state.lastUpdated = new Date();
-    console.log('[APP] Loaded', games.length, 'games');
+
     console.log('[APP] Loaded stats for', Object.keys(stats.teamSummary).length, 'teams');
+    const withRecent = Object.values(stats.teamSummary).filter(t => t.hasRecentForm).length;
+    console.log('[APP] Teams with recent-form data:', withRecent);
     if (Object.keys(stats.teamSummary).length === 0) {
       console.warn('[APP] ⚠ No team stats loaded — will use league average fallbacks');
     }
+
     renderGames();
     renderStatsPanel();
     renderDateHeader();
