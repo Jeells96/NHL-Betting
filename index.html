@@ -968,11 +968,12 @@ function parseMinutes(timeStr) {
 }
 
 // League average fallback for when stats don't load
+// These are PER TEAM averages (each team scores ~0.92 in P1, ~3.1 per game)
 const LEAGUE_AVERAGES = {
-  'GF_PER_GAME': 3.1,
-  'GA_PER_GAME': 3.1,
-  'P1_GF': 1.85,
-  'P1_GA': 1.85,
+  'GF_PER_GAME': 3.1,   // per team per game
+  'GA_PER_GAME': 3.1,   // per team per game
+  'P1_GF': 0.92,        // per team 1st period (league total ~1.85 / 2)
+  'P1_GA': 0.92,        // per team 1st period
 };
 
 // ============================================================================
