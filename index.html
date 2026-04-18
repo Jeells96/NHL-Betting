@@ -736,22 +736,31 @@ function logoUrl(abbr) {
 // API
 // ============================================================================
 async function fetchJson(url, opts = {}) {
-  // Try direct fetch first, fall back to CORS proxy if blocked
+  // Try direct fetch first
   try {
     const res = await fetch(url, { ...opts, cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
   } catch (directErr) {
-    // If direct fetch fails (CORS), use public proxy
-    try {
-      const proxiedUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-      const res = await fetch(proxiedUrl, { ...opts, cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch (proxyErr) {
-      console.error('Both direct and proxied fetch failed:', directErr, proxyErr);
-      throw new Error('Failed to fetch from NHL API');
+    console.log('[FETCH] Direct failed, trying proxies:', url);
+    // Try multiple CORS proxies in order
+    const proxies = [
+      `https://corsproxy.io/?${encodeURIComponent(url)}`,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    ];
+    for (const proxyUrl of proxies) {
+      try {
+        const res = await fetch(proxyUrl, { ...opts, cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        console.log('[FETCH] Success via proxy:', proxyUrl.split('?')[0]);
+        return data;
+      } catch (e) {
+        console.warn('[FETCH] Proxy failed:', proxyUrl.split('?')[0], e.message);
+      }
     }
+    throw new Error('All fetch attempts failed');
   }
 }
 
@@ -761,71 +770,56 @@ async function fetchSchedule(date) {
 }
 
 async function fetchTeamSummary() {
-  const url = `${NHL_STATS}/team/summary?cayenneExp=seasonId=${state.seasonId}%20and%20gameTypeId=${state.seasonType}`;
+  // Use standings endpoint from api-web (same domain as schedule, known to work)
   try {
-    console.log('[NHL] Fetching team summary...', url);
-    const data = await fetchJson(url);
-    console.log('[NHL] Team summary loaded:', data.data?.length || 0, 'teams');
-    if (data.data && data.data.length > 0) {
-      console.log('[NHL] Sample team:', data.data[0].teamAbbrev || data.data[0].triCode, data.data[0].teamFullName);
+    console.log('[NHL] Fetching standings...');
+    const data = await fetchJson(`${NHL_WEB}/standings/now`);
+    const teams = data.standings || [];
+    console.log('[NHL] Standings loaded:', teams.length, 'teams');
+    if (teams.length > 0) {
+      console.log('[NHL] Sample team keys:', Object.keys(teams[0]));
+      console.log('[NHL] Sample team:', teams[0].teamAbbrev?.default, teams[0].teamName?.default);
     }
-    return data.data || [];
+    // Normalize to same shape as stats endpoint
+    return teams.map(t => ({
+      teamAbbrev: t.teamAbbrev?.default || t.teamAbbrev,
+      triCode: t.teamAbbrev?.default || t.teamAbbrev,
+      teamFullName: t.teamName?.default || t.teamName,
+      gamesPlayed: t.gamesPlayed,
+      goalsFor: t.goalFor,
+      goalsAgainst: t.goalAgainst,
+      goalsForPerGame: t.gamesPlayed ? t.goalFor / t.gamesPlayed : 0,
+      goalsAgainstPerGame: t.gamesPlayed ? t.goalAgainst / t.gamesPlayed : 0,
+      wins: t.wins,
+      losses: t.losses,
+      otLosses: t.otLosses,
+      points: t.points,
+    }));
   } catch (e) {
-    console.error('[NHL] Team summary failed:', e.message);
+    console.error('[NHL] Standings fetch failed:', e.message);
     return [];
   }
 }
 
 async function fetchGoalsByPeriod() {
-  const url = `${NHL_STATS}/team/goalsbyperiod?cayenneExp=seasonId=${state.seasonId}%20and%20gameTypeId=${state.seasonType}`;
-  try {
-    console.log('[NHL] Fetching goals by period...');
-    const data = await fetchJson(url);
-    console.log('[NHL] Goals by period loaded:', data.data?.length || 0, 'records');
-    return data.data || [];
-  } catch (e) {
-    console.error('[NHL] Goals by period failed:', e.message);
-    return [];
-  }
+  // api.nhle.com/stats doesn't reliably work through CORS proxies
+  // Skip — we'll estimate P1 from total GF using league ratio
+  console.log('[NHL] Skipping period-by-period endpoint (unreliable via proxy)');
+  return [];
 }
 
 async function fetchGoalsAgainstByPeriod() {
-  try {
-    const url = `${NHL_STATS}/team/goalsagainstbyperiod?cayenneExp=seasonId=${state.seasonId}%20and%20gameTypeId=${state.seasonType}`;
-    console.log('[NHL] Fetching goals against by period...');
-    const data = await fetchJson(url);
-    console.log('[NHL] Goals against by period loaded:', data.data?.length || 0, 'records');
-    return data.data || [];
-  } catch (e) {
-    console.warn('[NHL] Goals against by period failed, will estimate:', e.message);
-    return null;
-  }
+  console.log('[NHL] Skipping period-against endpoint (unreliable via proxy)');
+  return null;
 }
 
 async function fetchGoalieStats() {
-  try {
-    const url = `${NHL_STATS}/goalie/summary?cayenneExp=seasonId=${state.seasonId}%20and%20gameTypeId=${state.seasonType}&limit=300`;
-    console.log('[NHL] Fetching goalie stats...');
-    const data = await fetchJson(url);
-    console.log('[NHL] Goalie stats loaded:', data.data?.length || 0, 'goalies');
-    return data.data || [];
-  } catch (e) {
-    console.error('[NHL] Goalie stats failed:', e.message);
-    return [];
-  }
+  // Skip for now — stats endpoint unreliable
+  return [];
 }
 
 async function fetchSkaterStats() {
-  try {
-    const url = `${NHL_STATS}/skater/summary?cayenneExp=seasonId=${state.seasonId}%20and%20gameTypeId=${state.seasonType}&limit=500`;
-    console.log('[NHL] Fetching skater stats...');
-    const data = await fetchJson(url);
-    console.log('[NHL] Skater stats loaded:', data.data?.length || 0, 'skaters');
-    return data.data || [];
-  } catch (e) {
-    console.error('[NHL] Skater stats failed:', e.message);
-    return [];
-  }
+  return [];
 }
 
 async function loadAllStats() {
