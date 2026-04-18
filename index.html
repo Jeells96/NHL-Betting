@@ -466,10 +466,15 @@ font-family: var(–mono); font-size: 14px; border-radius: 2px;
 .setting-input:focus { outline: none; border-color: var(–ice); }
 .toggle-group { display: flex; gap: 6px; }
 .toggle-btn {
-flex: 1; padding: 10px; background: var(–bg); color: var(–text-2);
+flex: 1; padding: 12px; background: var(–bg); color: var(–text-2);
 border: 1px solid var(–line); font-family: var(–mono); font-size: 11px;
 letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
 border-radius: 2px;
+transition: all 0.12s ease;
+-webkit-user-select: none; user-select: none;
+}
+.toggle-btn:active {
+background: var(–bg-2); transform: scale(0.98);
 }
 .toggle-btn.active {
 background: var(–ice-glow); color: var(–ice); border-color: var(–ice-deep);
@@ -517,7 +522,7 @@ letter-spacing: 0.1em;
     <div class="brand">
       <span class="brand-dot"></span>
       <span class="brand-mark">PUCK PROPS</span>
-      <span class="brand-sub">v1.0 · NHL</span>
+      <span class="brand-sub">v2.0 · NHL</span>
     </div>
     <div class="header-actions">
       <div id="status-pill" class="status-pill"><span class="dot"></span><span id="status-text">LOADING</span></div>
@@ -589,29 +594,19 @@ letter-spacing: 0.1em;
         <button class="toggle-btn active" data-home="on">ON</button>
       </div>
     </div>
-    <div class="setting-row">
-      <div class="setting-label">Season Type</div>
-      <div class="setting-desc">Regular season or playoffs for stats basis</div>
-      <div class="toggle-group">
-        <button class="toggle-btn active" data-season="2">REGULAR</button>
-        <button class="toggle-btn" data-season="3">PLAYOFFS</button>
-      </div>
-    </div>
 
 ```
 <div class="about-block">
   <h3>How it works</h3>
-  <p>Expected 1st period goals = average of (Home team P1 GF/GP + Away team P1 GA/GP) and (Away team P1 GF/GP + Home team P1 GA/GP).</p>
-  <p>Expected total goals uses the same symmetric formula on full-game scoring rates. Edge is the difference between expected and the line.</p>
-  <p>Confidence tiers: <code>HIGH</code> ≥ 0.7 · <code>MED</code> ≥ 0.4 · <code>LOW</code> ≥ 0.2 · <code>PASS</code> under 0.2.</p>
+  <p>Expected 1st period goals = average of (home team's 1st period scoring + away team's 1st period defense) and (away team's 1st period scoring + home team's 1st period defense).</p>
+  <p>Expected full game total uses the same symmetric formula on season scoring rates. Edge is the difference between expected and your line.</p>
+  <p>Confidence tiers: <code>HIGH</code> ≥ 0.7 edge · <code>MED</code> ≥ 0.4 edge · <code>LOW</code> ≥ 0.2 edge · <code>PASS</code> under 0.2.</p>
 </div>
 
 <div class="about-block">
   <h3>Data sources</h3>
-  <p><code>api-web.nhle.com/v1/score/{date}</code> — daily schedule, scores, game state</p>
-  <p><code>api.nhle.com/stats/rest/en/team/summary</code> — season team scoring</p>
-  <p><code>api.nhle.com/stats/rest/en/team/goalsbyperiod</code> — period-level goals for</p>
-  <p><code>api.nhle.com/stats/rest/en/team/goalsagainstbyperiod</code> — period-level goals against</p>
+  <p>NHL schedule and standings from the official NHL API, refreshed on demand.</p>
+  <p>1st period scoring estimated at 29% of each team's total scoring rate (NHL historical average).</p>
 </div>
 
 <div class="disclaimer">
@@ -1256,35 +1251,35 @@ function renderBreakdown(pred, awayAbbr, homeAbbr) {
 
   return `<div class="stats-grid">
     <div class="stat-cell">
-      <div class="stat-label">${awayAbbr} · GF/GP</div>
+      <div class="stat-label">${awayAbbr} · Goals Per Game</div>
       <div class="stat-value">${a ? fmtNum(a.gfPerGame) : '—'}</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-label">${homeAbbr} · GF/GP</div>
+      <div class="stat-label">${homeAbbr} · Goals Per Game</div>
       <div class="stat-value">${h ? fmtNum(h.gfPerGame) : '—'}</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-label">${awayAbbr} · GA/GP</div>
+      <div class="stat-label">${awayAbbr} · Goals Allowed</div>
       <div class="stat-value">${a ? fmtNum(a.gaPerGame) : '—'}</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-label">${homeAbbr} · GA/GP</div>
+      <div class="stat-label">${homeAbbr} · Goals Allowed</div>
       <div class="stat-value">${h ? fmtNum(h.gaPerGame) : '—'}</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-label">${awayAbbr} · P1 GF/GP</div>
+      <div class="stat-label">${awayAbbr} · 1st Period Scoring</div>
       <div class="stat-value">${ap ? fmtNum(ap.p1gfPerGame) : '—'}</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-label">${homeAbbr} · P1 GF/GP</div>
+      <div class="stat-label">${homeAbbr} · 1st Period Scoring</div>
       <div class="stat-value">${hp ? fmtNum(hp.p1gfPerGame) : '—'}</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-label">${awayAbbr} · P1 GA/GP</div>
+      <div class="stat-label">${awayAbbr} · 1st Period Allowed</div>
       <div class="stat-value">${apa ? fmtNum(apa.p1gaPerGame) : '—'}</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-label">${homeAbbr} · P1 GA/GP</div>
+      <div class="stat-label">${homeAbbr} · 1st Period Allowed</div>
       <div class="stat-value">${hpa ? fmtNum(hpa.p1gaPerGame) : '—'}</div>
     </div>
   </div>
@@ -1333,7 +1328,7 @@ function renderBreakdown(pred, awayAbbr, homeAbbr) {
 
   <div class="footnote">
     Expected ${awayAbbr} ${fmtNum(pred.awayExp)} · ${homeAbbr} ${fmtNum(pred.homeExp)}
-    ${state.homeAdj ? ' · home-ice adj ON' : ''}
+    ${state.homeAdj ? ' · Home-ice adjustment applied' : ''}
   </div>`;
 }
 
@@ -1361,7 +1356,7 @@ function renderStatsPanel() {
     root.innerHTML = `
       <div class="team-stats-table">
         <div class="tst-header">
-          <div>#</div><div>TEAM</div><div>P1 GF</div><div>P1 GA</div><div>DIFF</div>
+          <div>#</div><div>Team</div><div>Scored</div><div>Allowed</div><div>Diff</div>
         </div>
         ${rows.map((r, i) => `
           <div class="tst-row">
@@ -1381,7 +1376,7 @@ function renderStatsPanel() {
     root.innerHTML = `
       <div class="team-stats-table">
         <div class="tst-header">
-          <div>#</div><div>TEAM</div><div>GF/GP</div><div>GA/GP</div><div>DIFF</div>
+          <div>#</div><div>Team</div><div>Scored</div><div>Allowed</div><div>Diff</div>
         </div>
         ${rows.map((r, i) => `
           <div class="tst-row">
@@ -1482,25 +1477,24 @@ $('p1-line').addEventListener('input', (e) => {
   if (!Number.isNaN(v)) { state.p1Line = v; savePrefs(); renderGames(); }
 });
 
-document.querySelectorAll('[data-home]').forEach(btn => {
-  if ((btn.dataset.home === 'on') === state.homeAdj) btn.classList.add('active');
-  else btn.classList.remove('active');
-  btn.addEventListener('click', () => {
-    state.homeAdj = btn.dataset.home === 'on';
-    document.querySelectorAll('[data-home]').forEach(b => b.classList.toggle('active', b === btn));
+// Event delegation for toggles (more reliable on iOS)
+document.addEventListener('click', (e) => {
+  const homeBtn = e.target.closest('[data-home]');
+  if (homeBtn) {
+    state.homeAdj = homeBtn.dataset.home === 'on';
+    document.querySelectorAll('[data-home]').forEach(b => {
+      b.classList.toggle('active', b.dataset.home === homeBtn.dataset.home);
+    });
     savePrefs();
     renderGames();
-  });
+    console.log('[APP] Home-ice adjustment:', state.homeAdj ? 'ON' : 'OFF');
+    return;
+  }
 });
-document.querySelectorAll('[data-season]').forEach(btn => {
-  if (parseInt(btn.dataset.season) === state.seasonType) btn.classList.add('active');
-  else btn.classList.remove('active');
-  btn.addEventListener('click', () => {
-    state.seasonType = parseInt(btn.dataset.season);
-    document.querySelectorAll('[data-season]').forEach(b => b.classList.toggle('active', b === btn));
-    savePrefs();
-    refreshAll();
-  });
+
+// Initial active state for home toggle
+document.querySelectorAll('[data-home]').forEach(btn => {
+  btn.classList.toggle('active', (btn.dataset.home === 'on') === state.homeAdj);
 });
 
 // ============================================================================
