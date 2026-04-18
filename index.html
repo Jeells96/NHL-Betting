@@ -1277,19 +1277,19 @@ function renderBreakdown(pred, awayAbbr, homeAbbr) {
   return `<div class="stats-grid">
     <div class="stat-cell">
       <div class="stat-label">${awayAbbr} · GF/GP</div>
-      <div class="stat-value">${fmtNum(a.gfPerGame)}</div>
+      <div class="stat-value">${a ? fmtNum(a.gfPerGame) : '—'}</div>
     </div>
     <div class="stat-cell">
       <div class="stat-label">${homeAbbr} · GF/GP</div>
-      <div class="stat-value">${fmtNum(h.gfPerGame)}</div>
+      <div class="stat-value">${h ? fmtNum(h.gfPerGame) : '—'}</div>
     </div>
     <div class="stat-cell">
       <div class="stat-label">${awayAbbr} · GA/GP</div>
-      <div class="stat-value">${fmtNum(a.gaPerGame)}</div>
+      <div class="stat-value">${a ? fmtNum(a.gaPerGame) : '—'}</div>
     </div>
     <div class="stat-cell">
       <div class="stat-label">${homeAbbr} · GA/GP</div>
-      <div class="stat-value">${fmtNum(h.gaPerGame)}</div>
+      <div class="stat-value">${h ? fmtNum(h.gaPerGame) : '—'}</div>
     </div>
     <div class="stat-cell">
       <div class="stat-label">${awayAbbr} · P1 GF/GP</div>
@@ -1439,14 +1439,8 @@ async function refreshAll() {
     state.lastUpdated = new Date();
     console.log('[APP] Loaded', games.length, 'games');
     console.log('[APP] Loaded stats for', Object.keys(stats.teamSummary).length, 'teams');
-    console.log('[APP] Sample prediction test:');
-    if (games.length > 0 && Object.keys(stats.teamSummary).length > 0) {
-      const g = games[0];
-      const h = g.homeTeam?.abbrev, a = g.awayTeam?.abbrev;
-      if (h && a) {
-        const pred = predict(h, a);
-        console.log(`[APP] ${a} @ ${h}:`, pred);
-      }
+    if (Object.keys(stats.teamSummary).length === 0) {
+      console.warn('[APP] ⚠ No team stats loaded — will use league average fallbacks');
     }
     renderGames();
     renderStatsPanel();
