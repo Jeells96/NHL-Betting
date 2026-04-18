@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#07090f" />
+<title>Puck Props</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+–bg: #07090f;
+–bg-1: #0d1119;
+–bg-2: #131826;
+–bg-3: #1a2132;
+–line: #222a3e;
+–line-soft: #1a2132;
+–text: #eef2f8;
+–text-1: #c4ccda;
+–text-2: #8690a4;
+–text-3: #5a6478;
+–ice: #7fdbff;
+–ice-deep: #2a9fd6;
+–ice-glow: rgba(127, 219, 255, 0.12);
+–over: #3ddc97;
+–under: #ff5c7c;
+–pass: #7c8699;
+–warn: #ffb347;
+–mono: ‘JetBrains Mono’, ui-monospace, SFMono-Regular, Menlo, monospace;
+–sans: ‘Archivo’, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+html, body {
+background: var(–bg);
+color: var(–text);
+font-family: var(–sans);
+-webkit-font-smoothing: antialiased;
+-webkit-text-size-adjust: 100%;
+overscroll-behavior-y: none;
+}
+
+body {
+min-height: 100vh;
+padding-top: env(safe-area-inset-top);
+padding-bottom: calc(64px + env(safe-area-inset-bottom));
+background-image:
+radial-gradient(ellipse 80% 50% at 50% -10%, var(–ice-glow), transparent 60%),
+linear-gradient(180deg, var(–bg) 0%, #05070c 100%);
+background-attachment: fixed;
+}
+
+/* HEADER */
+.header {
+padding: 14px 18px 10px;
+border-bottom: 1px solid var(–line);
+background: rgba(7, 9, 15, 0.85);
+backdrop-filter: blur(16px);
+-webkit-backdrop-filter: blur(16px);
+position: sticky;
+top: 0;
+z-index: 50;
+}
+.header-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand {
+display: flex; align-items: baseline; gap: 10px;
+font-family: var(–sans);
+}
+.brand-mark {
+font-weight: 900; font-size: 22px; letter-spacing: -0.03em;
+background: linear-gradient(135deg, #fff 0%, var(–ice) 100%);
+-webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.brand-dot { width: 6px; height: 6px; border-radius: 50%; background: var(–ice); box-shadow: 0 0 12px var(–ice); }
+.brand-sub {
+font-family: var(–mono); font-size: 10px; color: var(–text-3);
+letter-spacing: 0.15em; text-transform: uppercase;
+}
+.header-actions { display: flex; align-items: center; gap: 10px; }
+.status-pill {
+font-family: var(–mono); font-size: 10px; color: var(–text-2);
+padding: 5px 9px; border: 1px solid var(–line); border-radius: 2px;
+letter-spacing: 0.08em;
+}
+.status-pill .dot {
+display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+background: var(–over); margin-right: 6px; vertical-align: 1px;
+}
+.status-pill.stale .dot { background: var(–warn); }
+.status-pill.error .dot { background: var(–under); }
+.btn-icon {
+width: 36px; height: 36px; border: 1px solid var(–line);
+background: var(–bg-1); color: var(–text-1); border-radius: 2px;
+display: inline-flex; align-items: center; justify-content: center;
+cursor: pointer; transition: all 0.15s ease;
+}
+.btn-icon:active { transform: scale(0.95); background: var(–bg-2); }
+.btn-icon svg { width: 18px; height: 18px; }
+.btn-icon.spinning svg { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.date-row {
+display: flex; align-items: center; justify-content: space-between;
+margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(–line-soft);
+}
+.date-main {
+font-family: var(–sans); font-weight: 700; font-size: 18px;
+letter-spacing: -0.02em;
+}
+.date-sub { font-family: var(–mono); font-size: 11px; color: var(–text-3); }
+.date-nav { display: flex; gap: 6px; }
+.date-nav button {
+font-family: var(–mono); font-size: 11px;
+padding: 6px 10px; border: 1px solid var(–line); background: var(–bg-1);
+color: var(–text-2); border-radius: 2px; cursor: pointer;
+}
+.date-nav button:active { background: var(–bg-2); }
+
+/* TABS */
+.tabs {
+position: fixed; bottom: 0; left: 0; right: 0;
+display: grid; grid-template-columns: repeat(3, 1fr);
+background: rgba(7, 9, 15, 0.92);
+backdrop-filter: blur(16px);
+-webkit-backdrop-filter: blur(16px);
+border-top: 1px solid var(–line);
+padding-bottom: env(safe-area-inset-bottom);
+z-index: 40;
+}
+.tab {
+background: none; border: none; color: var(–text-3);
+padding: 12px 8px; font-family: var(–mono); font-size: 10px;
+letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer;
+display: flex; flex-direction: column; align-items: center; gap: 4px;
+border-top: 2px solid transparent;
+transition: color 0.15s ease;
+}
+.tab svg { width: 18px; height: 18px; }
+.tab.active { color: var(–ice); border-top-color: var(–ice); }
+
+/* MAIN */
+main { padding: 14px 12px 20px; }
+.panel { display: none; }
+.panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* LOADING / EMPTY */
+.loading, .empty, .error-msg {
+padding: 48px 20px; text-align: center;
+}
+.loading-bar {
+width: 40px; height: 2px; background: var(–line); margin: 0 auto 18px;
+position: relative; overflow: hidden;
+}
+.loading-bar::after {
+content: ‘’; position: absolute; inset: 0; width: 40%;
+background: var(–ice); animation: load 1.2s ease-in-out infinite;
+}
+@keyframes load { 0% { left: -40%; } 100% { left: 100%; } }
+.loading-text, .empty-text, .error-text {
+font-family: var(–mono); font-size: 11px; color: var(–text-3);
+letter-spacing: 0.1em; text-transform: uppercase;
+}
+.empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
+.error-msg { color: var(–under); }
+.error-hint { font-family: var(–mono); font-size: 11px; color: var(–text-3); margin-top: 8px; }
+
+/* GAME CARD */
+.game-card {
+background: linear-gradient(180deg, var(–bg-1) 0%, var(–bg-2) 100%);
+border: 1px solid var(–line); margin-bottom: 14px;
+overflow: hidden; position: relative;
+}
+.game-card::before {
+content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+background: linear-gradient(90deg, transparent, var(–ice-deep), transparent);
+opacity: 0.5;
+}
+
+.game-header {
+padding: 12px 14px 10px;
+display: flex; align-items: center; justify-content: space-between;
+border-bottom: 1px dashed var(–line-soft);
+}
+.game-meta { display: flex; flex-direction: column; gap: 2px; }
+.game-time {
+font-family: var(–mono); font-size: 12px; font-weight: 600;
+color: var(–text-1); letter-spacing: 0.05em;
+}
+.game-venue {
+font-family: var(–mono); font-size: 10px; color: var(–text-3);
+letter-spacing: 0.05em;
+}
+.game-status {
+font-family: var(–mono); font-size: 10px;
+padding: 3px 7px; letter-spacing: 0.1em; text-transform: uppercase;
+border: 1px solid var(–line); color: var(–text-2);
+}
+.game-status.live { color: var(–under); border-color: var(–under); animation: pulse 2s ease-in-out infinite; }
+.game-status.final { color: var(–text-3); }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+.matchup {
+padding: 14px; display: grid; grid-template-columns: 1fr auto 1fr;
+align-items: center; gap: 12px;
+}
+.team { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+.team-logo {
+width: 52px; height: 52px; object-fit: contain;
+filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+}
+.team-abbr {
+font-family: var(–sans); font-weight: 800; font-size: 15px;
+letter-spacing: 0.04em;
+}
+.team-record { font-family: var(–mono); font-size: 10px; color: var(–text-3); }
+.matchup-divider {
+font-family: var(–mono); font-size: 11px; color: var(–text-3);
+letter-spacing: 0.2em;
+}
+.score {
+font-family: var(–mono); font-size: 28px; font-weight: 700;
+color: var(–text);
+}
+
+/* PREDICTIONS */
+.predictions { padding: 0 14px 14px; }
+.pred-block {
+background: var(–bg); border: 1px solid var(–line);
+padding: 12px; margin-top: 10px;
+}
+.pred-header {
+display: flex; align-items: center; justify-content: space-between;
+margin-bottom: 10px;
+}
+.pred-title {
+font-family: var(–mono); font-size: 10px; color: var(–text-2);
+letter-spacing: 0.18em; text-transform: uppercase;
+}
+.pred-line {
+font-family: var(–mono); font-size: 11px; color: var(–text-3);
+}
+.pred-body {
+display: grid; grid-template-columns: 1fr auto; gap: 12px;
+align-items: center;
+}
+.pred-expected { display: flex; flex-direction: column; gap: 2px; }
+.pred-exp-label {
+font-family: var(–mono); font-size: 9px; color: var(–text-3);
+letter-spacing: 0.15em; text-transform: uppercase;
+}
+.pred-exp-value {
+font-family: var(–mono); font-size: 22px; font-weight: 700;
+letter-spacing: -0.02em;
+}
+.pred-exp-delta {
+font-family: var(–mono); font-size: 11px; font-weight: 500;
+}
+.pred-exp-delta.pos { color: var(–over); }
+.pred-exp-delta.neg { color: var(–under); }
+
+.pred-rec {
+text-align: right; display: flex; flex-direction: column; gap: 2px; align-items: flex-end;
+}
+.rec-side {
+font-family: var(–sans); font-weight: 800; font-size: 20px;
+letter-spacing: 0.02em;
+}
+.rec-side.over { color: var(–over); }
+.rec-side.under { color: var(–under); }
+.rec-side.pass { color: var(–pass); }
+.rec-conf {
+font-family: var(–mono); font-size: 9px;
+letter-spacing: 0.15em; text-transform: uppercase;
+padding: 3px 7px; border: 1px solid;
+}
+.rec-conf.high { color: var(–over); border-color: var(–over); background: rgba(61, 220, 151, 0.08); }
+.rec-conf.medium { color: var(–ice); border-color: var(–ice-deep); }
+.rec-conf.low { color: var(–warn); border-color: var(–warn); }
+.rec-conf.pass { color: var(–pass); border-color: var(–line); }
+
+/* STATS BREAKDOWN */
+.stats-grid {
+display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+margin-top: 10px; border: 1px solid var(–line);
+}
+.stat-cell {
+padding: 8px 10px; border-bottom: 1px solid var(–line-soft);
+}
+.stat-cell:nth-child(odd) { border-right: 1px solid var(–line-soft); }
+.stat-cell:nth-last-child(-n+2) { border-bottom: none; }
+.stat-label {
+font-family: var(–mono); font-size: 9px; color: var(–text-3);
+letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 2px;
+}
+.stat-value {
+font-family: var(–mono); font-size: 13px; font-weight: 600;
+color: var(–text);
+}
+.stat-team {
+font-family: var(–mono); font-size: 10px; color: var(–text-2);
+margin-right: 6px;
+}
+
+/* GOALIE ROW */
+.goalie-row {
+display: grid; grid-template-columns: 1fr auto 1fr;
+align-items: center; gap: 10px; padding: 10px 14px;
+background: var(–bg); border-bottom: 1px solid var(–line);
+}
+.goalie-slot { display: flex; justify-content: center; }
+.goalie-tag {
+font-family: var(–mono); font-size: 9px;
+padding: 4px 8px; border: 1px solid var(–ice-deep);
+background: rgba(127, 219, 255, 0.06); color: var(–ice);
+border-radius: 2px; white-space: nowrap;
+}
+.goalie-tag.empty { color: var(–text-3); border-color: var(–line); background: transparent; }
+.goalie-vs {
+font-family: var(–mono); font-size: 9px; color: var(–text-3);
+text-align: center; letter-spacing: 0.1em; text-transform: uppercase;
+}
+
+/* GOALIE DETAIL (in breakdown) */
+.goalie-detail {
+margin-top: 12px; padding: 10px 14px;
+background: var(–bg); border: 1px solid var(–line);
+}
+.goalie-detail-title {
+font-family: var(–mono); font-size: 9px; color: var(–text-3);
+letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px;
+}
+.goalie-detail-grid {
+display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.goalie-detail-box {
+background: var(–bg-1); border: 1px solid var(–line);
+padding: 8px; border-radius: 2px;
+}
+.goalie-detail-name {
+font-family: var(–sans); font-weight: 600; font-size: 12px;
+color: var(–text); margin-bottom: 4px;
+}
+.goalie-detail-stats {
+display: grid; grid-template-columns: 1fr 1fr 1fr;
+gap: 4px; font-family: var(–mono); font-size: 9px;
+}
+.goalie-detail-stats span {
+background: var(–bg); padding: 3px; color: var(–text-2);
+text-align: center; border-radius: 1px;
+}
+.goalie-detail-stats.empty {
+color: var(–text-3); padding: 4px;
+}
+
+/* SCORER DETAIL (in breakdown) */
+.scorer-detail {
+margin-top: 12px; padding: 10px 14px;
+background: var(–bg); border: 1px solid var(–line);
+}
+.scorer-detail-title {
+font-family: var(–mono); font-size: 9px; color: var(–text-3);
+letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px;
+}
+.scorer-grid {
+display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.scorer-col {
+background: var(–bg-1); border: 1px solid var(–line);
+padding: 8px; border-radius: 2px;
+}
+.scorer-col-title {
+font-family: var(–mono); font-size: 8px; color: var(–text-3);
+letter-spacing: 0.15em; text-transform: uppercase;
+padding-bottom: 4px; margin-bottom: 4px; border-bottom: 1px solid var(–line-soft);
+}
+.scorer-row {
+display: flex; justify-content: space-between; align-items: center;
+padding: 4px 0; font-family: var(–mono); font-size: 10px;
+}
+.scorer-name { color: var(–text); }
+.scorer-stat { color: var(–ice); font-weight: 600; }
+
+/* CORRELATION BADGE */
+.correlation-badge {
+margin-top: 10px; padding: 10px 14px;
+background: linear-gradient(90deg, rgba(127, 219, 255, 0.1), transparent);
+border: 1px solid var(–ice-deep); border-left: 3px solid var(–ice);
+font-family: var(–mono); font-size: 11px; font-weight: 600;
+color: var(–ice); letter-spacing: 0.05em;
+border-radius: 2px;
+}
+
+.expand-toggle {
+width: 100%; padding: 10px; background: none; border: none;
+border-top: 1px dashed var(–line-soft);
+font-family: var(–mono); font-size: 10px; color: var(–text-3);
+letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer;
+}
+.expand-toggle:active { color: var(–ice); }
+.expanded-section { display: none; padding: 0 14px 14px; }
+.expanded-section.show { display: block; animation: fadeIn 0.2s; }
+
+/* STATS PANEL */
+.stats-panel-header {
+padding: 4px 4px 12px;
+display: flex; align-items: center; justify-content: space-between;
+}
+.panel-title {
+font-family: var(–sans); font-weight: 800; font-size: 20px;
+letter-spacing: -0.02em;
+}
+.stat-select {
+font-family: var(–mono); font-size: 11px;
+background: var(–bg-1); color: var(–text-1);
+border: 1px solid var(–line); padding: 6px 10px;
+border-radius: 2px;
+}
+.team-stats-table {
+background: var(–bg-1); border: 1px solid var(–line);
+overflow: hidden;
+}
+.tst-header, .tst-row {
+display: grid; grid-template-columns: 32px 1fr 60px 60px 60px;
+align-items: center; padding: 10px 12px;
+font-family: var(–mono); font-size: 11px;
+}
+.tst-header {
+background: var(–bg-2); color: var(–text-3);
+font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+border-bottom: 1px solid var(–line);
+}
+.tst-row { border-bottom: 1px solid var(–line-soft); }
+.tst-row:last-child { border-bottom: none; }
+.tst-rank { color: var(–text-3); font-weight: 600; }
+.tst-team { display: flex; align-items: center; gap: 8px; }
+.tst-logo { width: 20px; height: 20px; }
+.tst-name { color: var(–text); font-weight: 500; }
+.tst-val { text-align: right; color: var(–text-1); font-weight: 600; }
+.tst-val.hl { color: var(–ice); }
+
+/* SETTINGS */
+.setting-row {
+background: var(–bg-1); border: 1px solid var(–line);
+padding: 14px; margin-bottom: 10px;
+}
+.setting-label {
+font-family: var(–sans); font-weight: 600; font-size: 14px;
+margin-bottom: 4px;
+}
+.setting-desc {
+font-family: var(–mono); font-size: 11px; color: var(–text-3);
+margin-bottom: 10px;
+}
+.setting-input {
+width: 100%; padding: 10px 12px; background: var(–bg);
+border: 1px solid var(–line); color: var(–text);
+font-family: var(–mono); font-size: 14px; border-radius: 2px;
+}
+.setting-input:focus { outline: none; border-color: var(–ice); }
+.toggle-group { display: flex; gap: 6px; }
+.toggle-btn {
+flex: 1; padding: 10px; background: var(–bg); color: var(–text-2);
+border: 1px solid var(–line); font-family: var(–mono); font-size: 11px;
+letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+border-radius: 2px;
+}
+.toggle-btn.active {
+background: var(–ice-glow); color: var(–ice); border-color: var(–ice-deep);
+}
+
+.disclaimer {
+margin-top: 18px; padding: 14px;
+background: var(–bg-1); border: 1px dashed var(–line);
+font-family: var(–mono); font-size: 10px; line-height: 1.6;
+color: var(–text-3); letter-spacing: 0.02em;
+}
+.disclaimer strong { color: var(–warn); }
+
+.about-block {
+background: var(–bg-1); border: 1px solid var(–line);
+padding: 14px; margin-bottom: 10px;
+}
+.about-block h3 {
+font-family: var(–sans); font-weight: 700; font-size: 13px;
+letter-spacing: 0.1em; text-transform: uppercase; color: var(–ice);
+margin-bottom: 8px;
+}
+.about-block p {
+font-family: var(–mono); font-size: 11px; line-height: 1.7;
+color: var(–text-2); margin-bottom: 6px;
+}
+.about-block code {
+background: var(–bg); padding: 1px 5px; border-radius: 2px;
+color: var(–ice); font-size: 10px;
+}
+
+/* MICRO */
+.footnote {
+margin-top: 14px; text-align: center;
+font-family: var(–mono); font-size: 10px; color: var(–text-3);
+letter-spacing: 0.1em;
+}
+</style>
+
+</head>
+<body>
+
+<header class="header">
+  <div class="header-row">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span class="brand-mark">PUCK PROPS</span>
+      <span class="brand-sub">v1.0 · NHL</span>
+    </div>
+    <div class="header-actions">
+      <div id="status-pill" class="status-pill"><span class="dot"></span><span id="status-text">LOADING</span></div>
+      <button id="refresh-btn" class="btn-icon" aria-label="Refresh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="date-row">
+    <div>
+      <div class="date-main" id="current-date">—</div>
+      <div class="date-sub" id="last-updated">Never updated</div>
+    </div>
+    <div class="date-nav">
+      <button id="prev-day">◀ PREV</button>
+      <button id="today-btn">TODAY</button>
+      <button id="next-day">NEXT ▶</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- GAMES -->
+  <section id="games-panel" class="panel active">
+    <div id="games-list">
+      <div class="loading">
+        <div class="loading-bar"></div>
+        <div class="loading-text">Fetching slate…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+
+  <section id="stats-panel" class="panel">
+    <div class="stats-panel-header">
+      <div class="panel-title">Team Metrics</div>
+      <select id="stat-mode" class="stat-select">
+        <option value="total">Total Goals</option>
+        <option value="p1">1st Period Goals</option>
+      </select>
+    </div>
+    <div id="stats-content">
+      <div class="loading">
+        <div class="loading-bar"></div>
+        <div class="loading-text">Loading stats…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+
+  <section id="settings-panel" class="panel">
+    <div class="setting-row">
+      <div class="setting-label">Total Goals Line</div>
+      <div class="setting-desc">Default sportsbook line for game total O/U</div>
+      <input type="number" id="total-line" class="setting-input" step="0.5" min="3" max="10" value="6.0" />
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">1st Period Goals Line</div>
+      <div class="setting-desc">Default sportsbook line for 1st period O/U</div>
+      <input type="number" id="p1-line" class="setting-input" step="0.5" min="0.5" max="3" value="1.5" />
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">Home Ice Adjustment</div>
+      <div class="setting-desc">Apply modest home-team scoring boost</div>
+      <div class="toggle-group">
+        <button class="toggle-btn" data-home="off">OFF</button>
+        <button class="toggle-btn active" data-home="on">ON</button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">Season Type</div>
+      <div class="setting-desc">Regular season or playoffs for stats basis</div>
+      <div class="toggle-group">
+        <button class="toggle-btn active" data-season="2">REGULAR</button>
+        <button class="toggle-btn" data-season="3">PLAYOFFS</button>
+      </div>
+    </div>
+
+```
+<div class="about-block">
+  <h3>How it works</h3>
+  <p>Expected 1st period goals = average of (Home team P1 GF/GP + Away team P1 GA/GP) and (Away team P1 GF/GP + Home team P1 GA/GP).</p>
+  <p>Expected total goals uses the same symmetric formula on full-game scoring rates. Edge is the difference between expected and the line.</p>
+  <p>Confidence tiers: <code>HIGH</code> ≥ 0.7 · <code>MED</code> ≥ 0.4 · <code>LOW</code> ≥ 0.2 · <code>PASS</code> under 0.2.</p>
+</div>
+
+<div class="about-block">
+  <h3>Data sources</h3>
+  <p><code>api-web.nhle.com/v1/score/{date}</code> — daily schedule, scores, game state</p>
+  <p><code>api.nhle.com/stats/rest/en/team/summary</code> — season team scoring</p>
+  <p><code>api.nhle.com/stats/rest/en/team/goalsbyperiod</code> — period-level goals for</p>
+  <p><code>api.nhle.com/stats/rest/en/team/goalsagainstbyperiod</code> — period-level goals against</p>
+</div>
+
+<div class="disclaimer">
+  <strong>ENTERTAINMENT ONLY.</strong> This tool provides statistical projections, not betting advice. Sports outcomes are unpredictable. If gambling is negatively impacting your life, call 1-800-GAMBLER. Never bet more than you can afford to lose.
+</div>
+```
+
+  </section>
+</main>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="games-panel">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 4 3 14 0 18M12 3c-3 4-3 14 0 18"/></svg>
+    Games
+  </button>
+  <button class="tab" data-tab="stats-panel">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="6" width="4" height="15"/><rect x="17" y="3" width="4" height="18"/></svg>
+    Stats
+  </button>
+  <button class="tab" data-tab="settings-panel">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Settings
+  </button>
+</nav>
+
+<script>
+// ============================================================================
+// CONFIG
+// ============================================================================
+const NHL_WEB = 'https://api-web.nhle.com/v1';
+const NHL_STATS = 'https://api.nhle.com/stats/rest/en';
+const STORAGE_KEY = 'puck_props_v1';
+const LEAGUE_AVG_P1 = 1.85; // NHL historical 1st period total (for fallback)
+const LEAGUE_AVG_TOTAL = 6.20; // NHL recent league avg goals per game (both teams)
+const HOME_BOOST = 0.08; // home team adjustment (goals)
+
+// ============================================================================
+// STATE
+// ============================================================================
+const state = {
+  date: isoDate(new Date()),
+  games: [],
+  teamSummary: {},   // abbr -> summary stats
+  teamP1: {},        // abbr -> period 1 GF
+  teamP1Against: {}, // abbr -> period 1 GA
+  goalieStats: {},   // {teamAbbr: [{name, gamesPlayed, savePercentage, sv}]} 
+  starterMap: {},    // {gameId: {home: {name, sv%}, away: {name, sv%}}}
+  skaterStats: {},   // {teamAbbr: []} for goal-scoring leaders
+  lastUpdated: null,
+  totalLine: 6.0,
+  p1Line: 1.5,
+  homeAdj: true,
+  seasonType: 2,     // 2=regular, 3=playoffs
+  seasonId: currentSeasonId(),
+  expanded: new Set(),
+};
+
+loadPrefs();
+
+// ============================================================================
+// UTILITIES
+// ============================================================================
+function isoDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function currentSeasonId() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth() + 1;
+  // NHL season spans Oct–Jun; if before Aug, we're in prior starting season
+  if (m >= 8) return `${y}${y + 1}`;
+  return `${y - 1}${y}`;
+}
+
+function loadPrefs() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const p = JSON.parse(raw);
+    if (typeof p.totalLine === 'number') state.totalLine = p.totalLine;
+    if (typeof p.p1Line === 'number') state.p1Line = p.p1Line;
+    if (typeof p.homeAdj === 'boolean') state.homeAdj = p.homeAdj;
+    if (p.seasonType === 2 || p.seasonType === 3) state.seasonType = p.seasonType;
+  } catch (e) { /* noop */ }
+}
+function savePrefs() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      totalLine: state.totalLine,
+      p1Line: state.p1Line,
+      homeAdj: state.homeAdj,
+      seasonType: state.seasonType,
+    }));
+  } catch (e) { /* noop */ }
+}
+
+function fmtNum(n, d = 2) {
+  if (n == null || Number.isNaN(n)) return '—';
+  return Number(n).toFixed(d);
+}
+function signedNum(n, d = 2) {
+  if (n == null || Number.isNaN(n)) return '—';
+  const s = n >= 0 ? '+' : '';
+  return s + Number(n).toFixed(d);
+}
+
+function prettyDate(iso) {
+  const d = new Date(iso + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+}
+
+function logoUrl(abbr) {
+  if (!abbr) return '';
+  return `https://assets.nhle.com/logos/nhl/svg/${abbr}_light.svg`;
+}
+
+// ============================================================================
+// API
+// ============================================================================
+async function fetchJson(url, opts = {}) {
+  const res = await fetch(url, { ...opts, cache: 'no-store' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function fetchSchedule(date) {
+  const data = await fetchJson(`${NHL_WEB}/score/${date}`);
+  return data.games || [];
+}
+
+async function fetchTeamSummary() {
+  const url = `${NHL_STATS}/team/summary?cayenneExp=seasonId=${state.seasonId}%20and%20gameTypeId=${state.seasonType}`;
+  const data = await fetchJson(url);
+  return data.data || [];
+}
+
+async function fetchGoalsByPeriod() {
+  const url = `${NHL_STATS}/team/goalsbyperiod?cayenneExp=seasonId=${state.seasonId}%20and%20gameTypeId=${state.seasonType}`;
+  const data = await fetchJson(url);
+  return data.data || [];
+}
+
+async function fetchGoalsAgainstByPeriod() {
+  // Try the dedicated endpoint; fall back to null on failure (estimated from totals)
+  try {
+    const url = `${NHL_STATS}/team/goalsagainstbyperiod?cayenneExp=seasonId=${state.seasonId}%20and%20gameTypeId=${state.seasonType}`;
+    const data = await fetchJson(url);
+    return data.data || [];
+  } catch (e) {
+    return null;
+  }
+}
+
+async function fetchGameDetails(gameId) {
+  // Fetch live game details including confirmed goalies
+  try {
+    const url = `${NHL_WEB}/gamecenter/${gameId}/boxscore`;
+    const data = await fetchJson(url);
+    return data;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function fetchGoalieStats() {
+  // Fetch goalie stats for both teams in a matchup
+  try {
+    const url = `${NHL_STATS}/goalie/summary?cayenneExp=seasonId=${state.seasonId}%20and%20gameTypeId=${state.seasonType}&limit=300`;
+    const data = await fetchJson(url);
+    return data.data || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+async function fetchSkaterStats() {
+  // Fetch individual skater stats for goal-scoring rates
+  try {
+    const url = `${NHL_STATS}/skater/summary?cayenneExp=seasonId=${state.seasonId}%20and%20gameTypeId=${state.seasonType}&limit=500`;
+    const data = await fetchJson(url);
+    return data.data || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+async function loadAllStats() {
+  const [summary, p1For, p1AgainstRaw, goalies, skaters] = await Promise.all([
+    fetchTeamSummary().catch(() => []),
+    fetchGoalsByPeriod().catch(() => []),
+    fetchGoalsAgainstByPeriod(),
+    fetchGoalieStats().catch(() => []),
+    fetchSkaterStats().catch(() => []),
+  ]);
+
+  const teamSummary = {};
+  for (const t of summary) {
+    const abbr = t.teamAbbrev || t.triCode;
+    if (!abbr) continue;
+    const gp = t.gamesPlayed || 1;
+    teamSummary[abbr] = {
+      name: t.teamFullName,
+      abbr,
+      gp,
+      gf: t.goalsFor,
+      ga: t.goalsAgainst,
+      gfPerGame: t.goalsForPerGame ?? (t.goalsFor / gp),
+      gaPerGame: t.goalsAgainstPerGame ?? (t.goalsAgainst / gp),
+      wins: t.wins,
+      losses: t.losses,
+      otLosses: t.otLosses,
+      points: t.points,
+    };
+  }
+
+  const teamP1 = {};
+  for (const t of p1For) {
+    const abbr = t.teamAbbrev || t.triCode;
+    if (!abbr) continue;
+    const gp = t.gamesPlayed || teamSummary[abbr]?.gp || 1;
+    teamP1[abbr] = {
+      gp,
+      p1gf: t.period1GoalsFor ?? 0,
+      p1gfPerGame: (t.period1GoalsFor ?? 0) / gp,
+      p2gf: t.period2GoalsFor ?? 0,
+      p3gf: t.period3GoalsFor ?? 0,
+    };
+  }
+
+  const teamP1Against = {};
+  if (p1AgainstRaw && p1AgainstRaw.length) {
+    for (const t of p1AgainstRaw) {
+      const abbr = t.teamAbbrev || t.triCode;
+      if (!abbr) continue;
+      const gp = t.gamesPlayed || teamSummary[abbr]?.gp || 1;
+      teamP1Against[abbr] = {
+        gp,
+        p1ga: t.period1GoalsAgainst ?? 0,
+        p1gaPerGame: (t.period1GoalsAgainst ?? 0) / gp,
+      };
+    }
+  } else {
+    // Fallback: estimate P1 GA from total GA × historical 1st-period share (≈0.30)
+    const shareP1 = 0.30;
+    for (const abbr in teamSummary) {
+      const s = teamSummary[abbr];
+      teamP1Against[abbr] = {
+        gp: s.gp,
+        p1ga: s.ga * shareP1,
+        p1gaPerGame: s.gaPerGame * shareP1,
+        estimated: true,
+      };
+    }
+  }
+
+  // Index goalies by team
+  const goalieStats = {};
+  for (const g of goalies) {
+    const abbr = g.teamAbbrev || g.triCode;
+    if (!abbr) continue;
+    if (!goalieStats[abbr]) goalieStats[abbr] = [];
+    goalieStats[abbr].push({
+      id: g.playerId,
+      name: g.skaterFullName,
+      gp: g.gamesPlayed || 0,
+      wins: g.wins || 0,
+      losses: g.losses || 0,
+      otl: g.otLosses || 0,
+      minPlayed: g.timeOnIce ? parseMinutes(g.timeOnIce) : 0,
+      sv: g.savePct ?? 0,
+      gaa: g.goalAgainstAverage ?? 0,
+      shutouts: g.shutouts || 0,
+    });
+  }
+  // Sort by games played (to identify primary starter)
+  for (const abbr in goalieStats) {
+    goalieStats[abbr].sort((a, b) => (b.gp || 0) - (a.gp || 0));
+  }
+
+  // Index skaters by team and filter for scoring leaders
+  const skaterStats = {};
+  for (const s of skaters) {
+    const abbr = s.teamAbbrev || s.triCode;
+    if (!abbr) continue;
+    if (!skaterStats[abbr]) skaterStats[abbr] = [];
+    const gp = s.gamesPlayed || 1;
+    skaterStats[abbr].push({
+      id: s.playerId,
+      name: s.skaterFullName,
+      gp,
+      goals: s.goals || 0,
+      assists: s.assists || 0,
+      points: s.points || 0,
+      gperGame: (s.goals || 0) / gp,
+    });
+  }
+  for (const abbr in skaterStats) {
+    skaterStats[abbr].sort((a, b) => (b.points || 0) - (a.points || 0));
+  }
+
+  return { teamSummary, teamP1, teamP1Against, goalieStats, skaterStats };
+}
+
+function parseMinutes(timeStr) {
+  // Parse "MM:SS" format
+  if (!timeStr) return 0;
+  const parts = timeStr.split(':');
+  if (parts.length === 2) return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+  return 0;
+}
+
+// ============================================================================
+// PREDICTIONS
+// ============================================================================
+function predict(homeAbbr, awayAbbr, gameId) {
+  const hs = state.teamSummary[homeAbbr];
+  const as = state.teamSummary[awayAbbr];
+  const hp = state.teamP1[homeAbbr];
+  const ap = state.teamP1[awayAbbr];
+  const hpa = state.teamP1Against[homeAbbr];
+  const apa = state.teamP1Against[awayAbbr];
+  const hg = state.goalieStats[homeAbbr]?.[0];
+  const ag = state.goalieStats[awayAbbr]?.[0];
+
+  if (!hs || !as) return null;
+
+  // Base full game expected
+  let homeExp = (hs.gfPerGame + as.gaPerGame) / 2;
+  let awayExp = (as.gfPerGame + hs.gaPerGame) / 2;
+  if (state.homeAdj) { homeExp += HOME_BOOST; awayExp -= HOME_BOOST / 2; }
+  let totalExp = homeExp + awayExp;
+
+  // GOALIE IMPACT: Adjust expected goals based on goalie save% anomaly
+  // Typical NHL SV% is ~.920. Each 0.01 above/below affects goal expectation
+  const leagueAvgSv = 0.920;
+  if (hg && hg.sv > 0) {
+    const homeGoalieAdjust = (leagueAvgSv - hg.sv) * as.gfPerGame * 0.5; // home goalie vs away offense
+    awayExp += homeGoalieAdjust;
+  }
+  if (ag && ag.sv > 0) {
+    const awayGoalieAdjust = (leagueAvgSv - ag.sv) * hs.gfPerGame * 0.5; // away goalie vs home offense
+    homeExp += awayGoalieAdjust;
+  }
+  totalExp = homeExp + awayExp;
+
+  // 1st period expected
+  let p1Exp = null;
+  if (hp && ap && hpa && apa) {
+    const home1 = (hp.p1gfPerGame + apa.p1gaPerGame) / 2;
+    const away1 = (ap.p1gfPerGame + hpa.p1gaPerGame) / 2;
+    p1Exp = home1 + away1;
+    // Goalie impact on P1 (less pronounced)
+    if (hg && hg.sv > 0) p1Exp += (leagueAvgSv - hg.sv) * (ap.p1gfPerGame || 0) * 0.25;
+    if (ag && ag.sv > 0) p1Exp += (leagueAvgSv - ag.sv) * (hp.p1gfPerGame || 0) * 0.25;
+  } else {
+    // Scale league P1 share from total exp
+    p1Exp = totalExp * (LEAGUE_AVG_P1 / LEAGUE_AVG_TOTAL);
+  }
+
+  const totalRec = recommend(totalExp, state.totalLine);
+  const p1Rec = recommend(p1Exp, state.p1Line);
+
+  // PARLAY CORRELATION: If both lean the same direction with confidence, they're correlated
+  // e.g., if P1 OVER is strong and total OVER is strong, the parlay is more likely than independent
+  let correlation = 'independent';
+  const samesign = (totalRec.edge > 0) === (p1Rec.edge > 0);
+  if (samesign && totalRec.conf !== 'pass' && p1Rec.conf !== 'pass') {
+    if (totalRec.conf === 'high' && p1Rec.conf === 'high') {
+      correlation = 'tight';
+    } else if (totalRec.conf === 'high' || p1Rec.conf === 'high') {
+      correlation = 'strong';
+    } else {
+      correlation = 'moderate';
+    }
+  } else if (!samesign && totalRec.conf !== 'pass' && p1Rec.conf !== 'pass') {
+    correlation = 'hedged';
+  }
+
+  return {
+    totalExp,
+    p1Exp,
+    homeExp,
+    awayExp,
+    totalRec,
+    p1Rec,
+    correlation,
+    estimated: hpa?.estimated || apa?.estimated,
+    home: hs,
+    away: as,
+    homeP1: hp,
+    awayP1: ap,
+    homeP1A: hpa,
+    awayP1A: apa,
+    homeGoalie: hg,
+    awayGoalie: ag,
+  };
+}
+
+function recommend(expected, line) {
+  const edge = expected - line;
+  const abs = Math.abs(edge);
+  let side = edge > 0 ? 'over' : 'under';
+  let conf;
+  if (abs < 0.2) { side = 'pass'; conf = 'pass'; }
+  else if (abs < 0.4) conf = 'low';
+  else if (abs < 0.7) conf = 'medium';
+  else conf = 'high';
+  return { side, conf, edge };
+}
+
+// ============================================================================
+// RENDER
+// ============================================================================
+function $(id) { return document.getElementById(id); }
+
+function renderDateHeader() {
+  $('current-date').textContent = prettyDate(state.date);
+  const sub = state.lastUpdated
+    ? `Updated ${state.lastUpdated.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`
+    : 'Never updated';
+  $('last-updated').textContent = sub;
+}
+
+function setStatus(mode, text) {
+  const pill = $('status-pill');
+  pill.classList.remove('stale', 'error');
+  if (mode === 'stale') pill.classList.add('stale');
+  if (mode === 'error') pill.classList.add('error');
+  $('status-text').textContent = text;
+}
+
+function renderGames() {
+  const root = $('games-list');
+  if (!state.games.length) {
+    root.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">🏒</div>
+        <div class="empty-text">No games scheduled for this date</div>
+      </div>`;
+    return;
+  }
+
+  const haveStats = Object.keys(state.teamSummary).length > 0;
+  const html = state.games.map(g => renderGameCard(g, haveStats)).join('');
+  root.innerHTML = html;
+
+  // Attach expand handlers
+  root.querySelectorAll('.expand-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const section = root.querySelector(`.expanded-section[data-id="${id}"]`);
+      if (state.expanded.has(id)) {
+        state.expanded.delete(id);
+        section.classList.remove('show');
+        btn.textContent = '▾ Show breakdown';
+      } else {
+        state.expanded.add(id);
+        section.classList.add('show');
+        btn.textContent = '▴ Hide breakdown';
+      }
+    });
+  });
+}
+
+function renderGameCard(g, haveStats) {
+  const homeAbbr = g.homeTeam?.abbrev || '';
+  const awayAbbr = g.awayTeam?.abbrev || '';
+  const id = String(g.id);
+  const isLive = g.gameState === 'LIVE' || g.gameState === 'CRIT';
+  const isFinal = g.gameState === 'FINAL' || g.gameState === 'OFF';
+  const isFuture = g.gameState === 'FUT' || g.gameState === 'PRE';
+
+  const localTime = g.startTimeUTC
+    ? new Date(g.startTimeUTC).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+    : '';
+
+  const homeScore = g.homeTeam?.score ?? '';
+  const awayScore = g.awayTeam?.score ?? '';
+
+  const pred = haveStats ? predict(homeAbbr, awayAbbr, id) : null;
+
+  const statusLabel = isLive ? `LIVE · P${g.period || ''}`
+    : isFinal ? 'FINAL'
+    : (g.gameScheduleState === 'TBD' ? 'TBD' : localTime);
+  const statusClass = isLive ? 'live' : isFinal ? 'final' : '';
+
+  const venue = g.venue?.default || '';
+
+  let matchupMid;
+  if (isFuture || !homeScore) {
+    matchupMid = `<div class="matchup-divider">VS</div>`;
+  } else {
+    matchupMid = `<div class="score">${awayScore} – ${homeScore}</div>`;
+  }
+
+  const awayRec = g.awayTeam?.record ? `(${g.awayTeam.record})` : '';
+  const homeRec = g.homeTeam?.record ? `(${g.homeTeam.record})` : '';
+
+  return `
+    <article class="game-card">
+      <div class="game-header">
+        <div class="game-meta">
+          <div class="game-time">${localTime || '—'}</div>
+          <div class="game-venue">${venue}</div>
+        </div>
+        <div class="game-status ${statusClass}">${statusLabel}</div>
+      </div>
+      <div class="matchup">
+        <div class="team">
+          <img class="team-logo" src="${logoUrl(awayAbbr)}" alt="${awayAbbr}" onerror="this.style.display='none'">
+          <div class="team-abbr">${awayAbbr}</div>
+          <div class="team-record">${awayRec}</div>
+        </div>
+        ${matchupMid}
+        <div class="team">
+          <img class="team-logo" src="${logoUrl(homeAbbr)}" alt="${homeAbbr}" onerror="this.style.display='none'">
+          <div class="team-abbr">${homeAbbr}</div>
+          <div class="team-record">${homeRec}</div>
+        </div>
+      </div>
+      ${pred ? renderPredictions(pred, id) : renderNoPred()}
+      ${pred ? `<button class="expand-toggle" data-id="${id}">▾ Show breakdown</button>
+      <div class="expanded-section" data-id="${id}">${renderBreakdown(pred, awayAbbr, homeAbbr)}</div>` : ''}
+    </article>`;
+}
+
+function renderNoPred() {
+  return `<div class="predictions">
+    <div class="pred-block">
+      <div class="pred-header">
+        <div class="pred-title">Projection unavailable</div>
+      </div>
+      <div class="pred-line">Team stats not yet loaded, or team not found in season data.</div>
+    </div>
+  </div>`;
+}
+
+function renderPredictions(pred, id) {
+  const confMap = { high: 'HIGH CONF', medium: 'MED CONF', low: 'LOW CONF', pass: 'PASS' };
+  const sideLabel = (r) => r.side === 'pass' ? 'PASS' : r.side.toUpperCase();
+
+  const correlationLabel = {
+    'tight': '🔗 TIGHT PARLAY',
+    'strong': '🔗 STRONG PARLAY',
+    'moderate': '🔗 MODERATE PARLAY',
+    'hedged': '⚖ HEDGED',
+    'independent': '',
+  }[pred.correlation] || '';
+
+  const homeGoalieTag = pred.homeGoalie ? `<span class="goalie-tag">${pred.homeGoalie.name.split(' ').pop()} ${fmtNum(pred.homeGoalie.sv, 3)} SV%</span>` : '';
+  const awayGoalieTag = pred.awayGoalie ? `<span class="goalie-tag">${pred.awayGoalie.name.split(' ').pop()} ${fmtNum(pred.awayGoalie.sv, 3)} SV%</span>` : '';
+
+  return `<div class="predictions">
+    ${pred.homeGoalie || pred.awayGoalie ? `<div class="goalie-row">
+      <div class="goalie-slot">${pred.awayGoalie ? awayGoalieTag : '<span class="goalie-tag empty">— No data</span>'}</div>
+      <div class="goalie-vs">vs</div>
+      <div class="goalie-slot">${pred.homeGoalie ? homeGoalieTag : '<span class="goalie-tag empty">— No data</span>'}</div>
+    </div>` : ''}
+    <div class="pred-block">
+      <div class="pred-header">
+        <div class="pred-title">1st Period Total</div>
+        <div class="pred-line">Line ${fmtNum(state.p1Line, 1)}</div>
+      </div>
+      <div class="pred-body">
+        <div class="pred-expected">
+          <div class="pred-exp-label">Expected</div>
+          <div class="pred-exp-value">${fmtNum(pred.p1Exp)}</div>
+          <div class="pred-exp-delta ${pred.p1Rec.edge >= 0 ? 'pos' : 'neg'}">${signedNum(pred.p1Rec.edge)} vs line</div>
+        </div>
+        <div class="pred-rec">
+          <div class="rec-side ${pred.p1Rec.side}">${sideLabel(pred.p1Rec)} ${fmtNum(state.p1Line, 1)}</div>
+          <div class="rec-conf ${pred.p1Rec.conf}">${confMap[pred.p1Rec.conf]}</div>
+        </div>
+      </div>
+    </div>
+    <div class="pred-block">
+      <div class="pred-header">
+        <div class="pred-title">Full Game Total</div>
+        <div class="pred-line">Line ${fmtNum(state.totalLine, 1)}</div>
+      </div>
+      <div class="pred-body">
+        <div class="pred-expected">
+          <div class="pred-exp-label">Expected</div>
+          <div class="pred-exp-value">${fmtNum(pred.totalExp)}</div>
+          <div class="pred-exp-delta ${pred.totalRec.edge >= 0 ? 'pos' : 'neg'}">${signedNum(pred.totalRec.edge)} vs line</div>
+        </div>
+        <div class="pred-rec">
+          <div class="rec-side ${pred.totalRec.side}">${sideLabel(pred.totalRec)} ${fmtNum(state.totalLine, 1)}</div>
+          <div class="rec-conf ${pred.totalRec.conf}">${confMap[pred.totalRec.conf]}</div>
+        </div>
+      </div>
+    </div>
+    ${correlationLabel ? `<div class="correlation-badge">${correlationLabel}</div>` : ''}
+    ${pred.estimated ? `<div class="pred-line" style="margin-top:8px; color: var(--warn);">⚠ P1 goals-against estimated from season totals</div>` : ''}
+  </div>`;
+}
+
+function renderBreakdown(pred, awayAbbr, homeAbbr) {
+  const a = pred.away, h = pred.home;
+  const ap = pred.awayP1, hp = pred.homeP1;
+  const apa = pred.awayP1A, hpa = pred.homeP1A;
+  const ag = pred.awayGoalie, hg = pred.homeGoalie;
+
+  const awaySkaters = state.skaterStats[awayAbbr] || [];
+  const homeSkaters = state.skaterStats[homeAbbr] || [];
+  const awayTop3 = awaySkaters.slice(0, 3);
+  const homeTop3 = homeSkaters.slice(0, 3);
+
+  return `<div class="stats-grid">
+    <div class="stat-cell">
+      <div class="stat-label">${awayAbbr} · GF/GP</div>
+      <div class="stat-value">${fmtNum(a.gfPerGame)}</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">${homeAbbr} · GF/GP</div>
+      <div class="stat-value">${fmtNum(h.gfPerGame)}</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">${awayAbbr} · GA/GP</div>
+      <div class="stat-value">${fmtNum(a.gaPerGame)}</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">${homeAbbr} · GA/GP</div>
+      <div class="stat-value">${fmtNum(h.gaPerGame)}</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">${awayAbbr} · P1 GF/GP</div>
+      <div class="stat-value">${ap ? fmtNum(ap.p1gfPerGame) : '—'}</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">${homeAbbr} · P1 GF/GP</div>
+      <div class="stat-value">${hp ? fmtNum(hp.p1gfPerGame) : '—'}</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">${awayAbbr} · P1 GA/GP</div>
+      <div class="stat-value">${apa ? fmtNum(apa.p1gaPerGame) : '—'}</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">${homeAbbr} · P1 GA/GP</div>
+      <div class="stat-value">${hpa ? fmtNum(hpa.p1gaPerGame) : '—'}</div>
+    </div>
+  </div>
+  
+  ${ag || hg ? `<div class="goalie-detail">
+    <div class="goalie-detail-title">Starter Breakdown</div>
+    <div class="goalie-detail-grid">
+      <div class="goalie-detail-box">
+        <div class="goalie-detail-name">${ag ? ag.name : awayAbbr + ' TBD'}</div>
+        ${ag ? `<div class="goalie-detail-stats">
+          <span>${ag.gp} GP</span>
+          <span>${fmtNum(ag.sv, 3)} SV%</span>
+          <span>${fmtNum(ag.gaa, 2)} GAA</span>
+        </div>` : '<div class="goalie-detail-stats empty">Starter TBD</div>'}
+      </div>
+      <div class="goalie-detail-box">
+        <div class="goalie-detail-name">${hg ? hg.name : homeAbbr + ' TBD'}</div>
+        ${hg ? `<div class="goalie-detail-stats">
+          <span>${hg.gp} GP</span>
+          <span>${fmtNum(hg.sv, 3)} SV%</span>
+          <span>${fmtNum(hg.gaa, 2)} GAA</span>
+        </div>` : '<div class="goalie-detail-stats empty">Starter TBD</div>'}
+      </div>
+    </div>
+  </div>` : ''}
+
+  ${awayTop3.length > 0 || homeTop3.length > 0 ? `<div class="scorer-detail">
+    <div class="scorer-detail-title">Top Scorers</div>
+    <div class="scorer-grid">
+      <div class="scorer-col">
+        <div class="scorer-col-title">${awayAbbr}</div>
+        ${awayTop3.map(s => `<div class="scorer-row">
+          <span class="scorer-name">${s.name.split(' ').pop()}</span>
+          <span class="scorer-stat">${s.points} pts</span>
+        </div>`).join('')}
+      </div>
+      <div class="scorer-col">
+        <div class="scorer-col-title">${homeAbbr}</div>
+        ${homeTop3.map(s => `<div class="scorer-row">
+          <span class="scorer-name">${s.name.split(' ').pop()}</span>
+          <span class="scorer-stat">${s.points} pts</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>` : ''}
+
+  <div class="footnote">
+    Expected ${awayAbbr} ${fmtNum(pred.awayExp)} · ${homeAbbr} ${fmtNum(pred.homeExp)}
+    ${state.homeAdj ? ' · home-ice adj ON' : ''}
+  </div>`;
+}
+
+function renderStatsPanel() {
+  const mode = $('stat-mode').value;
+  const root = $('stats-content');
+  const teams = Object.values(state.teamSummary);
+  if (!teams.length) {
+    root.innerHTML = `<div class="empty"><div class="empty-text">Stats not yet loaded</div></div>`;
+    return;
+  }
+
+  let rows;
+  if (mode === 'p1') {
+    rows = teams.map(t => {
+      const p = state.teamP1[t.abbr];
+      const pa = state.teamP1Against[t.abbr];
+      return {
+        abbr: t.abbr, name: t.name,
+        gf: p ? p.p1gfPerGame : 0,
+        ga: pa ? pa.p1gaPerGame : 0,
+        diff: (p?.p1gfPerGame || 0) - (pa?.p1gaPerGame || 0),
+      };
+    }).sort((a, b) => b.gf - a.gf);
+    root.innerHTML = `
+      <div class="team-stats-table">
+        <div class="tst-header">
+          <div>#</div><div>TEAM</div><div>P1 GF</div><div>P1 GA</div><div>DIFF</div>
+        </div>
+        ${rows.map((r, i) => `
+          <div class="tst-row">
+            <div class="tst-rank">${i + 1}</div>
+            <div class="tst-team"><img class="tst-logo" src="${logoUrl(r.abbr)}" onerror="this.style.display='none'"><span class="tst-name">${r.abbr}</span></div>
+            <div class="tst-val hl">${fmtNum(r.gf)}</div>
+            <div class="tst-val">${fmtNum(r.ga)}</div>
+            <div class="tst-val">${signedNum(r.diff)}</div>
+          </div>`).join('')}
+      </div>`;
+  } else {
+    rows = teams.map(t => ({
+      abbr: t.abbr, name: t.name,
+      gf: t.gfPerGame, ga: t.gaPerGame,
+      diff: t.gfPerGame - t.gaPerGame,
+    })).sort((a, b) => b.gf - a.gf);
+    root.innerHTML = `
+      <div class="team-stats-table">
+        <div class="tst-header">
+          <div>#</div><div>TEAM</div><div>GF/GP</div><div>GA/GP</div><div>DIFF</div>
+        </div>
+        ${rows.map((r, i) => `
+          <div class="tst-row">
+            <div class="tst-rank">${i + 1}</div>
+            <div class="tst-team"><img class="tst-logo" src="${logoUrl(r.abbr)}" onerror="this.style.display='none'"><span class="tst-name">${r.abbr}</span></div>
+            <div class="tst-val hl">${fmtNum(r.gf)}</div>
+            <div class="tst-val">${fmtNum(r.ga)}</div>
+            <div class="tst-val">${signedNum(r.diff)}</div>
+          </div>`).join('')}
+      </div>`;
+  }
+}
+
+// ============================================================================
+// ACTIONS
+// ============================================================================
+async function refreshAll() {
+  setStatus('', 'LOADING');
+  $('refresh-btn').classList.add('spinning');
+  renderDateHeader();
+
+  try {
+    const [games, stats] = await Promise.all([
+      fetchSchedule(state.date).catch(e => { throw new Error('Schedule: ' + e.message); }),
+      loadAllStats().catch(e => { throw new Error('Stats: ' + e.message); }),
+    ]);
+    state.games = games;
+    state.teamSummary = stats.teamSummary;
+    state.teamP1 = stats.teamP1;
+    state.teamP1Against = stats.teamP1Against;
+    state.goalieStats = stats.goalieStats;
+    state.skaterStats = stats.skaterStats;
+    state.lastUpdated = new Date();
+    renderGames();
+    renderStatsPanel();
+    renderDateHeader();
+    setStatus('', 'LIVE');
+  } catch (e) {
+    console.error(e);
+    $('games-list').innerHTML = `
+      <div class="error-msg">
+        <div class="empty-icon">⚠</div>
+        <div class="error-text">Failed to load data</div>
+        <div class="error-hint">${e.message}</div>
+        <div class="error-hint">Check connection and retry</div>
+      </div>`;
+    setStatus('error', 'OFFLINE');
+  } finally {
+    $('refresh-btn').classList.remove('spinning');
+  }
+}
+
+function changeDate(delta) {
+  const d = new Date(state.date + 'T12:00:00');
+  d.setDate(d.getDate() + delta);
+  state.date = isoDate(d);
+  refreshAll();
+}
+
+// ============================================================================
+// EVENT BINDING
+// ============================================================================
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'stats-panel') renderStatsPanel();
+  });
+});
+
+$('refresh-btn').addEventListener('click', refreshAll);
+$('prev-day').addEventListener('click', () => changeDate(-1));
+$('next-day').addEventListener('click', () => changeDate(1));
+$('today-btn').addEventListener('click', () => {
+  state.date = isoDate(new Date());
+  refreshAll();
+});
+
+$('stat-mode').addEventListener('change', renderStatsPanel);
+
+$('total-line').value = state.totalLine;
+$('p1-line').value = state.p1Line;
+$('total-line').addEventListener('input', (e) => {
+  const v = parseFloat(e.target.value);
+  if (!Number.isNaN(v)) { state.totalLine = v; savePrefs(); renderGames(); }
+});
+$('p1-line').addEventListener('input', (e) => {
+  const v = parseFloat(e.target.value);
+  if (!Number.isNaN(v)) { state.p1Line = v; savePrefs(); renderGames(); }
+});
+
+document.querySelectorAll('[data-home]').forEach(btn => {
+  if ((btn.dataset.home === 'on') === state.homeAdj) btn.classList.add('active');
+  else btn.classList.remove('active');
+  btn.addEventListener('click', () => {
+    state.homeAdj = btn.dataset.home === 'on';
+    document.querySelectorAll('[data-home]').forEach(b => b.classList.toggle('active', b === btn));
+    savePrefs();
+    renderGames();
+  });
+});
+document.querySelectorAll('[data-season]').forEach(btn => {
+  if (parseInt(btn.dataset.season) === state.seasonType) btn.classList.add('active');
+  else btn.classList.remove('active');
+  btn.addEventListener('click', () => {
+    state.seasonType = parseInt(btn.dataset.season);
+    document.querySelectorAll('[data-season]').forEach(b => b.classList.toggle('active', b === btn));
+    savePrefs();
+    refreshAll();
+  });
+});
+
+// ============================================================================
+// BOOT
+// ============================================================================
+renderDateHeader();
+refreshAll();
+</script>
+
+</body>
+</html>
