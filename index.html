@@ -762,56 +762,68 @@ async function fetchSchedule(date) {
 
 async function fetchTeamSummary() {
   const url = `${NHL_STATS}/team/summary?cayenneExp=seasonId=${state.seasonId}%20and%20gameTypeId=${state.seasonType}`;
-  const data = await fetchJson(url);
-  return data.data || [];
+  try {
+    console.log('[NHL] Fetching team summary...', url);
+    const data = await fetchJson(url);
+    console.log('[NHL] Team summary loaded:', data.data?.length || 0, 'teams');
+    if (data.data && data.data.length > 0) {
+      console.log('[NHL] Sample team:', data.data[0].teamAbbrev || data.data[0].triCode, data.data[0].teamFullName);
+    }
+    return data.data || [];
+  } catch (e) {
+    console.error('[NHL] Team summary failed:', e.message);
+    return [];
+  }
 }
 
 async function fetchGoalsByPeriod() {
   const url = `${NHL_STATS}/team/goalsbyperiod?cayenneExp=seasonId=${state.seasonId}%20and%20gameTypeId=${state.seasonType}`;
-  const data = await fetchJson(url);
-  return data.data || [];
-}
-
-async function fetchGoalsAgainstByPeriod() {
-  // Try the dedicated endpoint; fall back to null on failure (estimated from totals)
   try {
-    const url = `${NHL_STATS}/team/goalsagainstbyperiod?cayenneExp=seasonId=${state.seasonId}%20and%20gameTypeId=${state.seasonType}`;
+    console.log('[NHL] Fetching goals by period...');
     const data = await fetchJson(url);
+    console.log('[NHL] Goals by period loaded:', data.data?.length || 0, 'records');
     return data.data || [];
   } catch (e) {
-    return null;
+    console.error('[NHL] Goals by period failed:', e.message);
+    return [];
   }
 }
 
-async function fetchGameDetails(gameId) {
-  // Fetch live game details including confirmed goalies
+async function fetchGoalsAgainstByPeriod() {
   try {
-    const url = `${NHL_WEB}/gamecenter/${gameId}/boxscore`;
+    const url = `${NHL_STATS}/team/goalsagainstbyperiod?cayenneExp=seasonId=${state.seasonId}%20and%20gameTypeId=${state.seasonType}`;
+    console.log('[NHL] Fetching goals against by period...');
     const data = await fetchJson(url);
-    return data;
+    console.log('[NHL] Goals against by period loaded:', data.data?.length || 0, 'records');
+    return data.data || [];
   } catch (e) {
+    console.warn('[NHL] Goals against by period failed, will estimate:', e.message);
     return null;
   }
 }
 
 async function fetchGoalieStats() {
-  // Fetch goalie stats for both teams in a matchup
   try {
     const url = `${NHL_STATS}/goalie/summary?cayenneExp=seasonId=${state.seasonId}%20and%20gameTypeId=${state.seasonType}&limit=300`;
+    console.log('[NHL] Fetching goalie stats...');
     const data = await fetchJson(url);
+    console.log('[NHL] Goalie stats loaded:', data.data?.length || 0, 'goalies');
     return data.data || [];
   } catch (e) {
+    console.error('[NHL] Goalie stats failed:', e.message);
     return [];
   }
 }
 
 async function fetchSkaterStats() {
-  // Fetch individual skater stats for goal-scoring rates
   try {
     const url = `${NHL_STATS}/skater/summary?cayenneExp=seasonId=${state.seasonId}%20and%20gameTypeId=${state.seasonType}&limit=500`;
+    console.log('[NHL] Fetching skater stats...');
     const data = await fetchJson(url);
+    console.log('[NHL] Skater stats loaded:', data.data?.length || 0, 'skaters');
     return data.data || [];
   } catch (e) {
+    console.error('[NHL] Skater stats failed:', e.message);
     return [];
   }
 }
@@ -976,46 +988,48 @@ function predict(homeAbbr, awayAbbr, gameId) {
   const hg = state.goalieStats[homeAbbr]?.[0];
   const ag = state.goalieStats[awayAbbr]?.[0];
 
-  if (!hs || !as) return null;
+  // Use actual stats if available, fall back to league average
+  const homeGF = hs?.gfPerGame ?? LEAGUE_AVERAGES.GF_PER_GAME;
+  const homeGA = hs?.gaPerGame ?? LEAGUE_AVERAGES.GA_PER_GAME;
+  const awayGF = as?.gfPerGame ?? LEAGUE_AVERAGES.GF_PER_GAME;
+  const awayGA = as?.gaPerGame ?? LEAGUE_AVERAGES.GA_PER_GAME;
 
   // Base full game expected
-  let homeExp = (hs.gfPerGame + as.gaPerGame) / 2;
-  let awayExp = (as.gfPerGame + hs.gaPerGame) / 2;
+  let homeExp = (homeGF + awayGA) / 2;
+  let awayExp = (awayGF + homeGA) / 2;
   if (state.homeAdj) { homeExp += HOME_BOOST; awayExp -= HOME_BOOST / 2; }
   let totalExp = homeExp + awayExp;
 
   // GOALIE IMPACT: Adjust expected goals based on goalie save% anomaly
-  // Typical NHL SV% is ~.920. Each 0.01 above/below affects goal expectation
   const leagueAvgSv = 0.920;
   if (hg && hg.sv > 0) {
-    const homeGoalieAdjust = (leagueAvgSv - hg.sv) * as.gfPerGame * 0.5; // home goalie vs away offense
+    const homeGoalieAdjust = (leagueAvgSv - hg.sv) * awayGF * 0.5;
     awayExp += homeGoalieAdjust;
   }
   if (ag && ag.sv > 0) {
-    const awayGoalieAdjust = (leagueAvgSv - ag.sv) * hs.gfPerGame * 0.5; // away goalie vs home offense
+    const awayGoalieAdjust = (leagueAvgSv - ag.sv) * homeGF * 0.5;
     homeExp += awayGoalieAdjust;
   }
   totalExp = homeExp + awayExp;
 
   // 1st period expected
   let p1Exp = null;
-  if (hp && ap && hpa && apa) {
-    const home1 = (hp.p1gfPerGame + apa.p1gaPerGame) / 2;
-    const away1 = (ap.p1gfPerGame + hpa.p1gaPerGame) / 2;
-    p1Exp = home1 + away1;
-    // Goalie impact on P1 (less pronounced)
-    if (hg && hg.sv > 0) p1Exp += (leagueAvgSv - hg.sv) * (ap.p1gfPerGame || 0) * 0.25;
-    if (ag && ag.sv > 0) p1Exp += (leagueAvgSv - ag.sv) * (hp.p1gfPerGame || 0) * 0.25;
-  } else {
-    // Scale league P1 share from total exp
-    p1Exp = totalExp * (LEAGUE_AVG_P1 / LEAGUE_AVG_TOTAL);
-  }
+  const homeP1GF = hp?.p1gfPerGame ?? LEAGUE_AVERAGES.P1_GF;
+  const homeP1GA = hpa?.p1gaPerGame ?? LEAGUE_AVERAGES.P1_GA;
+  const awayP1GF = ap?.p1gfPerGame ?? LEAGUE_AVERAGES.P1_GF;
+  const awayP1GA = apa?.p1gaPerGame ?? LEAGUE_AVERAGES.P1_GA;
+
+  const home1 = (homeP1GF + awayP1GA) / 2;
+  const away1 = (awayP1GF + homeP1GA) / 2;
+  p1Exp = home1 + away1;
+  // Goalie impact on P1 (less pronounced)
+  if (hg && hg.sv > 0) p1Exp += (leagueAvgSv - hg.sv) * awayP1GF * 0.25;
+  if (ag && ag.sv > 0) p1Exp += (leagueAvgSv - ag.sv) * homeP1GF * 0.25;
 
   const totalRec = recommend(totalExp, state.totalLine);
   const p1Rec = recommend(p1Exp, state.p1Line);
 
-  // PARLAY CORRELATION: If both lean the same direction with confidence, they're correlated
-  // e.g., if P1 OVER is strong and total OVER is strong, the parlay is more likely than independent
+  // PARLAY CORRELATION
   let correlation = 'independent';
   const samesign = (totalRec.edge > 0) === (p1Rec.edge > 0);
   if (samesign && totalRec.conf !== 'pass' && p1Rec.conf !== 'pass') {
@@ -1038,7 +1052,7 @@ function predict(homeAbbr, awayAbbr, gameId) {
     totalRec,
     p1Rec,
     correlation,
-    estimated: hpa?.estimated || apa?.estimated,
+    estimated: hpa?.estimated || apa?.estimated || !hs || !as,
     home: hs,
     away: as,
     homeP1: hp,
@@ -1410,6 +1424,8 @@ async function refreshAll() {
   renderDateHeader();
 
   try {
+    console.log('[APP] Loading data for date:', state.date);
+    console.log('[APP] Season:', state.seasonId, 'Type:', state.seasonType === 2 ? 'Regular' : 'Playoffs');
     const [games, stats] = await Promise.all([
       fetchSchedule(state.date).catch(e => { throw new Error('Schedule: ' + e.message); }),
       loadAllStats().catch(e => { throw new Error('Stats: ' + e.message); }),
@@ -1421,18 +1437,29 @@ async function refreshAll() {
     state.goalieStats = stats.goalieStats;
     state.skaterStats = stats.skaterStats;
     state.lastUpdated = new Date();
+    console.log('[APP] Loaded', games.length, 'games');
+    console.log('[APP] Loaded stats for', Object.keys(stats.teamSummary).length, 'teams');
+    console.log('[APP] Sample prediction test:');
+    if (games.length > 0 && Object.keys(stats.teamSummary).length > 0) {
+      const g = games[0];
+      const h = g.homeTeam?.abbrev, a = g.awayTeam?.abbrev;
+      if (h && a) {
+        const pred = predict(h, a);
+        console.log(`[APP] ${a} @ ${h}:`, pred);
+      }
+    }
     renderGames();
     renderStatsPanel();
     renderDateHeader();
     setStatus('', 'LIVE');
   } catch (e) {
-    console.error(e);
+    console.error('[APP] Error:', e);
     $('games-list').innerHTML = `
       <div class="error-msg">
         <div class="empty-icon">⚠</div>
         <div class="error-text">Failed to load data</div>
         <div class="error-hint">${e.message}</div>
-        <div class="error-hint">Check connection and retry</div>
+        <div class="error-hint">Check browser console (F12) for details</div>
       </div>`;
     setStatus('error', 'OFFLINE');
   } finally {
