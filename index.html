@@ -1108,8 +1108,7 @@ function renderGames() {
     return;
   }
 
-  const haveStats = Object.keys(state.teamSummary).length > 0;
-  const html = state.games.map(g => renderGameCard(g, haveStats)).join('');
+  const html = state.games.map(g => renderGameCard(g)).join('');
   root.innerHTML = html;
 
   // Attach expand handlers
@@ -1130,7 +1129,7 @@ function renderGames() {
   });
 }
 
-function renderGameCard(g, haveStats) {
+function renderGameCard(g) {
   const homeAbbr = g.homeTeam?.abbrev || '';
   const awayAbbr = g.awayTeam?.abbrev || '';
   const id = String(g.id);
@@ -1145,7 +1144,8 @@ function renderGameCard(g, haveStats) {
   const homeScore = g.homeTeam?.score ?? '';
   const awayScore = g.awayTeam?.score ?? '';
 
-  const pred = haveStats ? predict(homeAbbr, awayAbbr, id) : null;
+  // Always call predict — it uses league averages as fallback if team stats missing
+  const pred = (homeAbbr && awayAbbr) ? predict(homeAbbr, awayAbbr, id) : null;
 
   const statusLabel = isLive ? `LIVE · P${g.period || ''}`
     : isFinal ? 'FINAL'
@@ -1259,7 +1259,7 @@ function renderPredictions(pred, id) {
       </div>
     </div>
     ${correlationLabel ? `<div class="correlation-badge">${correlationLabel}</div>` : ''}
-    ${pred.estimated ? `<div class="pred-line" style="margin-top:8px; color: var(--warn);">⚠ P1 goals-against estimated from season totals</div>` : ''}
+    ${pred.estimated ? `<div class="pred-line" style="margin-top:8px; color: var(--warn);">⚠ ${(!pred.home || !pred.away) ? 'Team stats unavailable — using league averages' : 'P1 goals-against estimated from season totals'}</div>` : ''}
   </div>`;
 }
 
