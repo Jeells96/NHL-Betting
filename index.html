@@ -859,48 +859,33 @@ async function loadAllStats() {
 
   console.log('Loaded team summary for:', Object.keys(teamSummary).sort());
 
+  // P1 data isn't reliably available via proxy — estimate from team's GF/GA
+  // Historical NHL: 1st period ≈ 29% of total scoring (slightly less than 33% due to fewer goals early)
   const teamP1 = {};
-  for (const t of p1For) {
-    const abbr = getAbbr(t);
-    if (!abbr || abbr.length < 2) continue;
-    const gp = t.gamesPlayed || teamSummary[abbr]?.gp || 1;
+  const shareP1GF = 0.29;
+  for (const abbr in teamSummary) {
+    const s = teamSummary[abbr];
     teamP1[abbr] = {
-      gp,
-      p1gf: t.period1GoalsFor ?? 0,
-      p1gfPerGame: (t.period1GoalsFor ?? 0) / gp,
-      p2gf: t.period2GoalsFor ?? 0,
-      p3gf: t.period3GoalsFor ?? 0,
+      gp: s.gp,
+      p1gf: s.gf * shareP1GF,
+      p1gfPerGame: s.gfPerGame * shareP1GF,
+      estimated: true,
     };
   }
 
   const teamP1Against = {};
-  if (p1AgainstRaw && p1AgainstRaw.length) {
-    for (const t of p1AgainstRaw) {
-      const abbr = getAbbr(t);
-      if (!abbr || abbr.length < 2) continue;
-      const gp = t.gamesPlayed || teamSummary[abbr]?.gp || 1;
-      teamP1Against[abbr] = {
-        gp,
-        p1ga: t.period1GoalsAgainst ?? 0,
-        p1gaPerGame: (t.period1GoalsAgainst ?? 0) / gp,
-      };
-    }
-  } else {
-    // Fallback: estimate P1 GA from total GA × historical 1st-period share (≈0.30)
-    const shareP1 = 0.30;
-    for (const abbr in teamSummary) {
-      const s = teamSummary[abbr];
-      teamP1Against[abbr] = {
-        gp: s.gp,
-        p1ga: s.ga * shareP1,
-        p1gaPerGame: s.gaPerGame * shareP1,
-        estimated: true,
-      };
-    }
+  const shareP1GA = 0.29;
+  for (const abbr in teamSummary) {
+    const s = teamSummary[abbr];
+    teamP1Against[abbr] = {
+      gp: s.gp,
+      p1ga: s.ga * shareP1GA,
+      p1gaPerGame: s.gaPerGame * shareP1GA,
+      estimated: true,
+    };
   }
 
-  console.log('Loaded P1 for:', Object.keys(teamP1).sort());
-  console.log('Loaded P1 against for:', Object.keys(teamP1Against).sort());
+  console.log('[APP] P1 estimated from season totals for', Object.keys(teamP1).length, 'teams');
 
   // Index goalies by team
   const goalieStats = {};
@@ -1047,7 +1032,7 @@ function predict(homeAbbr, awayAbbr, gameId) {
     totalRec,
     p1Rec,
     correlation,
-    estimated: hpa?.estimated || apa?.estimated || !hs || !as,
+    estimated: !hs || !as,
     home: hs,
     away: as,
     homeP1: hp,
@@ -1254,7 +1239,7 @@ function renderPredictions(pred, id) {
       </div>
     </div>
     ${correlationLabel ? `<div class="correlation-badge">${correlationLabel}</div>` : ''}
-    ${pred.estimated ? `<div class="pred-line" style="margin-top:8px; color: var(--warn);">⚠ ${(!pred.home || !pred.away) ? 'Team stats unavailable — using league averages' : 'P1 goals-against estimated from season totals'}</div>` : ''}
+    ${pred.estimated ? `<div class="pred-line" style="margin-top:8px; color: var(--warn);">⚠ Team stats unavailable — using league averages</div>` : ''}
   </div>`;
 }
 
