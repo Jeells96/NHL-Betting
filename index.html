@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -284,20 +285,7 @@ padding: 3px 7px; border: 1px solid;
 .rec-conf.low { color: var(–warn); border-color: var(–warn); }
 .rec-conf.pass { color: var(–pass); border-color: var(–line); }
 
-/* LINE ADJUSTERS */
-.line-adjust {
-display: flex; gap: 16px; justify-content: center; margin-top: 12px; padding-top: 12px;
-border-top: 1px dashed var(–line-soft);
-font-family: var(–mono); font-size: 11px; color: var(–text-3);
-}
-.line-adjust label { white-space: nowrap; }
-.line-adjust input {
-width: 68px; background: var(–bg); border: 1px solid var(–line);
-color: var(–text); text-align: center; border-radius: 2px; padding: 4px;
-font-size: 14px;
-}
-
-/* STATS BREAKDOWN, GOALIE ROW, SCORER DETAIL, CORRELATION BADGE, EXPAND TOGGLE, etc. — all your original styles are here */
+/* STATS BREAKDOWN */
 .stats-grid {
 display: grid; grid-template-columns: 1fr 1fr; gap: 0;
 margin-top: 10px; border: 1px solid var(–line);
@@ -320,8 +308,212 @@ font-family: var(–mono); font-size: 10px; color: var(–text-2);
 margin-right: 6px;
 }
 
-/* GOALIE ROW, GOALIE DETAIL, SCORER DETAIL, CORRELATION BADGE, EXPAND TOGGLE, STATS PANEL, SETTINGS, etc. — all original styles from your first message are included in this file */
+/* GOALIE ROW */
+.goalie-row {
+display: grid; grid-template-columns: 1fr auto 1fr;
+align-items: center; gap: 10px; padding: 10px 14px;
+background: var(–bg); border-bottom: 1px solid var(–line);
+}
+.goalie-slot { display: flex; justify-content: center; }
+.goalie-tag {
+font-family: var(–mono); font-size: 9px;
+padding: 4px 8px; border: 1px solid var(–ice-deep);
+background: rgba(127, 219, 255, 0.06); color: var(–ice);
+border-radius: 2px; white-space: nowrap;
+}
+.goalie-tag.empty { color: var(–text-3); border-color: var(–line); background: transparent; }
+.goalie-vs {
+font-family: var(–mono); font-size: 9px; color: var(–text-3);
+text-align: center; letter-spacing: 0.1em; text-transform: uppercase;
+}
+
+/* GOALIE DETAIL (in breakdown) */
+.goalie-detail {
+margin-top: 12px; padding: 10px 14px;
+background: var(–bg); border: 1px solid var(–line);
+}
+.goalie-detail-title {
+font-family: var(–mono); font-size: 9px; color: var(–text-3);
+letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px;
+}
+.goalie-detail-grid {
+display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.goalie-detail-box {
+background: var(–bg-1); border: 1px solid var(–line);
+padding: 8px; border-radius: 2px;
+}
+.goalie-detail-name {
+font-family: var(–sans); font-weight: 600; font-size: 12px;
+color: var(–text); margin-bottom: 4px;
+}
+.goalie-detail-stats {
+display: grid; grid-template-columns: 1fr 1fr 1fr;
+gap: 4px; font-family: var(–mono); font-size: 9px;
+}
+.goalie-detail-stats span {
+background: var(–bg); padding: 3px; color: var(–text-2);
+text-align: center; border-radius: 1px;
+}
+.goalie-detail-stats.empty {
+color: var(–text-3); padding: 4px;
+}
+
+/* SCORER DETAIL (in breakdown) */
+.scorer-detail {
+margin-top: 12px; padding: 10px 14px;
+background: var(–bg); border: 1px solid var(–line);
+}
+.scorer-detail-title {
+font-family: var(–mono); font-size: 9px; color: var(–text-3);
+letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px;
+}
+.scorer-grid {
+display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.scorer-col {
+background: var(–bg-1); border: 1px solid var(–line);
+padding: 8px; border-radius: 2px;
+}
+.scorer-col-title {
+font-family: var(–mono); font-size: 8px; color: var(–text-3);
+letter-spacing: 0.15em; text-transform: uppercase;
+padding-bottom: 4px; margin-bottom: 4px; border-bottom: 1px solid var(–line-soft);
+}
+.scorer-row {
+display: flex; justify-content: space-between; align-items: center;
+padding: 4px 0; font-family: var(–mono); font-size: 10px;
+}
+.scorer-name { color: var(–text); }
+.scorer-stat { color: var(–ice); font-weight: 600; }
+
+/* CORRELATION BADGE */
+.correlation-badge {
+margin-top: 10px; padding: 10px 14px;
+background: linear-gradient(90deg, rgba(127, 219, 255, 0.1), transparent);
+border: 1px solid var(–ice-deep); border-left: 3px solid var(–ice);
+font-family: var(–mono); font-size: 11px; font-weight: 600;
+color: var(–ice); letter-spacing: 0.05em;
+border-radius: 2px;
+}
+
+.expand-toggle {
+width: 100%; padding: 10px; background: none; border: none;
+border-top: 1px dashed var(–line-soft);
+font-family: var(–mono); font-size: 10px; color: var(–text-3);
+letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer;
+}
+.expand-toggle:active { color: var(–ice); }
+.expanded-section { display: none; padding: 0 14px 14px; }
+.expanded-section.show { display: block; animation: fadeIn 0.2s; }
+
+/* STATS PANEL */
+.stats-panel-header {
+padding: 4px 4px 12px;
+display: flex; align-items: center; justify-content: space-between;
+}
+.panel-title {
+font-family: var(–sans); font-weight: 800; font-size: 20px;
+letter-spacing: -0.02em;
+}
+.stat-select {
+font-family: var(–mono); font-size: 11px;
+background: var(–bg-1); color: var(–text-1);
+border: 1px solid var(–line); padding: 6px 10px;
+border-radius: 2px;
+}
+.team-stats-table {
+background: var(–bg-1); border: 1px solid var(–line);
+overflow: hidden;
+}
+.tst-header, .tst-row {
+display: grid; grid-template-columns: 32px 1fr 60px 60px 60px;
+align-items: center; padding: 10px 12px;
+font-family: var(–mono); font-size: 11px;
+}
+.tst-header {
+background: var(–bg-2); color: var(–text-3);
+font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+border-bottom: 1px solid var(–line);
+}
+.tst-row { border-bottom: 1px solid var(–line-soft); }
+.tst-row:last-child { border-bottom: none; }
+.tst-rank { color: var(–text-3); font-weight: 600; }
+.tst-team { display: flex; align-items: center; gap: 8px; }
+.tst-logo { width: 20px; height: 20px; }
+.tst-name { color: var(–text); font-weight: 500; }
+.tst-val { text-align: right; color: var(–text-1); font-weight: 600; }
+.tst-val.hl { color: var(–ice); }
+
+/* SETTINGS */
+.setting-row {
+background: var(–bg-1); border: 1px solid var(–line);
+padding: 14px; margin-bottom: 10px;
+}
+.setting-label {
+font-family: var(–sans); font-weight: 600; font-size: 14px;
+margin-bottom: 4px;
+}
+.setting-desc {
+font-family: var(–mono); font-size: 11px; color: var(–text-3);
+margin-bottom: 10px;
+}
+.setting-input {
+width: 100%; padding: 10px 12px; background: var(–bg);
+border: 1px solid var(–line); color: var(–text);
+font-family: var(–mono); font-size: 14px; border-radius: 2px;
+}
+.setting-input:focus { outline: none; border-color: var(–ice); }
+.toggle-group { display: flex; gap: 6px; }
+.toggle-btn {
+flex: 1; padding: 12px; background: var(–bg); color: var(–text-2);
+border: 1px solid var(–line); font-family: var(–mono); font-size: 11px;
+letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+border-radius: 2px;
+transition: all 0.12s ease;
+-webkit-user-select: none; user-select: none;
+}
+.toggle-btn:active {
+background: var(–bg-2); transform: scale(0.98);
+}
+.toggle-btn.active {
+background: var(–ice-glow); color: var(–ice); border-color: var(–ice-deep);
+}
+
+.disclaimer {
+margin-top: 18px; padding: 14px;
+background: var(–bg-1); border: 1px dashed var(–line);
+font-family: var(–mono); font-size: 10px; line-height: 1.6;
+color: var(–text-3); letter-spacing: 0.02em;
+}
+.disclaimer strong { color: var(–warn); }
+
+.about-block {
+background: var(–bg-1); border: 1px solid var(–line);
+padding: 14px; margin-bottom: 10px;
+}
+.about-block h3 {
+font-family: var(–sans); font-weight: 700; font-size: 13px;
+letter-spacing: 0.1em; text-transform: uppercase; color: var(–ice);
+margin-bottom: 8px;
+}
+.about-block p {
+font-family: var(–mono); font-size: 11px; line-height: 1.7;
+color: var(–text-2); margin-bottom: 6px;
+}
+.about-block code {
+background: var(–bg); padding: 1px 5px; border-radius: 2px;
+color: var(–ice); font-size: 10px;
+}
+
+/* MICRO */
+.footnote {
+margin-top: 14px; text-align: center;
+font-family: var(–mono); font-size: 10px; color: var(–text-3);
+letter-spacing: 0.1em;
+}
 </style>
+
 </head>
 <body>
 
@@ -330,7 +522,7 @@ margin-right: 6px;
     <div class="brand">
       <span class="brand-dot"></span>
       <span class="brand-mark">PUCK PROPS</span>
-      <span class="brand-sub">v3.2 · NHL</span>
+      <span class="brand-sub">v3.0 · NHL</span>
     </div>
     <div class="header-actions">
       <div id="status-pill" class="status-pill"><span class="dot"></span><span id="status-text">LOADING</span></div>
@@ -353,6 +545,7 @@ margin-right: 6px;
 </header>
 
 <main>
+  <!-- GAMES -->
   <section id="games-panel" class="panel active">
     <div id="games-list">
       <div class="loading">
@@ -361,6 +554,8 @@ margin-right: 6px;
       </div>
     </div>
   </section>
+
+  <!-- STATS -->
 
   <section id="stats-panel" class="panel">
     <div class="stats-panel-header">
@@ -378,29 +573,18 @@ margin-right: 6px;
     </div>
   </section>
 
+  <!-- SETTINGS -->
+
   <section id="settings-panel" class="panel">
     <div class="setting-row">
-      <div class="setting-label">Guessed Full Game Total Line</div>
-      <div class="setting-desc">Default for new games</div>
+      <div class="setting-label">Total Goals Line</div>
+      <div class="setting-desc">Default sportsbook line for game total O/U</div>
       <input type="number" id="total-line" class="setting-input" step="0.5" min="3" max="10" value="6.0" />
     </div>
     <div class="setting-row">
-      <div class="setting-label">Guessed 1st Period Total Line</div>
-      <div class="setting-desc">Default for new games</div>
+      <div class="setting-label">1st Period Goals Line</div>
+      <div class="setting-desc">Default sportsbook line for 1st period O/U</div>
       <input type="number" id="p1-line" class="setting-input" step="0.5" min="0.5" max="3" value="1.5" />
-    </div>
-    <div class="setting-row">
-      <div class="setting-label">Playoff Mode</div>
-      <div class="setting-desc">Lower scoring expected in playoffs</div>
-      <div class="toggle-group">
-        <button class="toggle-btn" data-playoff="off">REGULAR</button>
-        <button class="toggle-btn active" data-playoff="on">PLAYOFFS</button>
-      </div>
-    </div>
-    <div class="setting-row">
-      <div class="setting-label">Minimum Edge to Recommend</div>
-      <div class="setting-desc">Only recommend if edge ≥ this value (otherwise PASS)</div>
-      <input type="number" id="min-edge" class="setting-input" step="0.1" min="0" value="0.3" />
     </div>
     <div class="setting-row">
       <div class="setting-label">Home Ice Adjustment</div>
@@ -411,14 +595,25 @@ margin-right: 6px;
       </div>
     </div>
 
-    <div class="about-block">
-      <h3>How it works</h3>
-      <p>Expected totals use real season stats + recent form + starting goalie adjustment + playoff reduction. Edge must meet your minimum or it shows PASS.</p>
-    </div>
+```
+<div class="about-block">
+  <h3>How it works</h3>
+  <p>Expected 1st period goals = average of (home team's 1st period scoring + away team's 1st period defense) and (away team's 1st period scoring + home team's 1st period defense).</p>
+  <p>Expected full game total uses the same symmetric formula on season scoring rates. Edge is the difference between expected and your line.</p>
+  <p>Confidence tiers: <code>HIGH</code> ≥ 0.7 edge · <code>MED</code> ≥ 0.4 edge · <code>LOW</code> ≥ 0.2 edge · <code>PASS</code> under 0.2.</p>
+</div>
 
-    <div class="disclaimer">
-      <strong>ENTERTAINMENT ONLY.</strong> This tool provides statistical projections, not betting advice. Bet responsibly.
-    </div>
+<div class="about-block">
+  <h3>Data sources</h3>
+  <p>NHL schedule and standings from the official NHL API, refreshed on demand.</p>
+  <p>1st period scoring estimated at 29% of each team's total scoring rate (NHL historical average).</p>
+</div>
+
+<div class="disclaimer">
+  <strong>ENTERTAINMENT ONLY.</strong> This tool provides statistical projections, not betting advice. Sports outcomes are unpredictable. If gambling is negatively impacting your life, call 1-800-GAMBLER. Never bet more than you can afford to lose.
+</div>
+```
+
   </section>
 </main>
 
@@ -439,40 +634,41 @@ margin-right: 6px;
 
 <script>
 // ============================================================================
-// FULL ORIGINAL SCRIPT + YOUR REQUESTED FIXES
+// CONFIG
 // ============================================================================
 const NHL_WEB = 'https://api-web.nhle.com/v1';
 const NHL_STATS = 'https://api.nhle.com/stats/rest/en';
 const STORAGE_KEY = 'puck_props_v1';
-const LEAGUE_AVG_P1 = 1.85;
-const LEAGUE_AVG_TOTAL = 6.20;
-const HOME_BOOST = 0.08;
+const LEAGUE_AVG_P1 = 1.85; // NHL historical 1st period total (for fallback)
+const LEAGUE_AVG_TOTAL = 6.20; // NHL recent league avg goals per game (both teams)
+const HOME_BOOST = 0.08; // home team adjustment (goals)
 
+// ============================================================================
+// STATE
+// ============================================================================
 const state = {
   date: isoDate(new Date()),
   games: [],
-  teamSummary: {},
-  teamP1: {},
-  teamP1Against: {},
-  goalieStats: {},
-  skaterStats: {},
-  starterMap: {},
-  recentForm: {},
+  teamSummary: {},   // abbr -> summary stats
+  teamP1: {},        // abbr -> period 1 GF
+  teamP1Against: {}, // abbr -> period 1 GA
+  goalieStats: {},   // {teamAbbr: [{name, gamesPlayed, savePercentage, sv}]} 
+  starterMap: {},    // {gameId: {home: {name, sv%}, away: {name, sv%}}}
+  skaterStats: {},   // {teamAbbr: []} for goal-scoring leaders
   lastUpdated: null,
   totalLine: 6.0,
   p1Line: 1.5,
   homeAdj: true,
-  seasonType: 2,
+  seasonType: 2,     // 2=regular, 3=playoffs
   seasonId: currentSeasonId(),
   expanded: new Set(),
-  perGameLines: {},   // per-game line overrides
-  playoffMode: true,  // defaults ON for playoffs
-  minEdge: 0.3        // minimum edge to show a side (otherwise PASS)
 };
 
 loadPrefs();
 
-// UTILITIES (your original)
+// ============================================================================
+// UTILITIES
+// ============================================================================
 function isoDate(d) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -484,6 +680,7 @@ function currentSeasonId() {
   const now = new Date();
   const y = now.getFullYear();
   const m = now.getMonth() + 1;
+  // NHL season spans Oct–Jun; if before Aug, we're in prior starting season
   if (m >= 8) return `${y}${y + 1}`;
   return `${y - 1}${y}`;
 }
@@ -496,30 +693,24 @@ function loadPrefs() {
     if (typeof p.totalLine === 'number') state.totalLine = p.totalLine;
     if (typeof p.p1Line === 'number') state.p1Line = p.p1Line;
     if (typeof p.homeAdj === 'boolean') state.homeAdj = p.homeAdj;
-    if (typeof p.playoffMode === 'boolean') state.playoffMode = p.playoffMode;
-    if (typeof p.minEdge === 'number') state.minEdge = p.minEdge;
     if (p.seasonType === 2 || p.seasonType === 3) state.seasonType = p.seasonType;
-  } catch (e) { }
+  } catch (e) { /* noop */ }
 }
-
 function savePrefs() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       totalLine: state.totalLine,
       p1Line: state.p1Line,
       homeAdj: state.homeAdj,
-      playoffMode: state.playoffMode,
-      minEdge: state.minEdge,
       seasonType: state.seasonType,
     }));
-  } catch (e) { }
+  } catch (e) { /* noop */ }
 }
 
 function fmtNum(n, d = 2) {
   if (n == null || Number.isNaN(n)) return '—';
   return Number(n).toFixed(d);
 }
-
 function signedNum(n, d = 2) {
   if (n == null || Number.isNaN(n)) return '—';
   const s = n >= 0 ? '+' : '';
@@ -536,33 +727,18 @@ function logoUrl(abbr) {
   return `https://assets.nhle.com/logos/nhl/svg/${abbr}_light.svg`;
 }
 
-function $(id) { return document.getElementById(id); }
-
-// Per-game line helpers
-function getGameLine(gameId, type) {
-  const overrides = state.perGameLines[gameId] || {};
-  if (type === 'total') return overrides.total !== undefined ? overrides.total : state.totalLine;
-  if (type === 'p1') return overrides.p1 !== undefined ? overrides.p1 : state.p1Line;
-  return 0;
-}
-
-function updateGameLine(gameId, type, value) {
-  if (!state.perGameLines[gameId]) state.perGameLines[gameId] = {};
-  const num = parseFloat(value);
-  if (!isNaN(num)) {
-    state.perGameLines[gameId][type] = num;
-    renderGames();
-  }
-}
-
-// API functions (your original)
+// ============================================================================
+// API
+// ============================================================================
 async function fetchJson(url, opts = {}) {
+  // Try direct fetch first
   try {
     const res = await fetch(url, { ...opts, cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
   } catch (directErr) {
     console.log('[FETCH] Direct failed, trying proxies:', url);
+    // Try multiple CORS proxies in order
     const proxies = [
       `https://corsproxy.io/?${encodeURIComponent(url)}`,
       `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
@@ -573,7 +749,7 @@ async function fetchJson(url, opts = {}) {
         const res = await fetch(proxyUrl, { ...opts, cache: 'no-store' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        console.log('[FETCH] Success via proxy');
+        console.log('[FETCH] Success via proxy:', proxyUrl.split('?')[0]);
         return data;
       } catch (e) {
         console.warn('[FETCH] Proxy failed:', proxyUrl.split('?')[0], e.message);
@@ -589,194 +765,385 @@ async function fetchSchedule(date) {
 }
 
 async function fetchTeamSummary() {
-  const data = await fetchJson(`${NHL_WEB}/standings/now`);
-  const teams = data.standings || [];
-  return teams.map(t => ({
-    teamAbbrev: t.teamAbbrev?.default || t.teamAbbrev,
-    triCode: t.teamAbbrev?.default || t.teamAbbrev,
-    teamFullName: t.teamName?.default || t.teamName,
-    gamesPlayed: t.gamesPlayed,
-    goalsFor: t.goalFor,
-    goalsAgainst: t.goalAgainst,
-    goalsForPerGame: t.gamesPlayed ? t.goalFor / t.gamesPlayed : 0,
-    goalsAgainstPerGame: t.gamesPlayed ? t.goalAgainst / t.gamesPlayed : 0,
-    wins: t.wins,
-    losses: t.losses,
-    otLosses: t.otLosses,
-    points: t.points,
-  }));
+  // Use standings endpoint for season totals (fallback baseline)
+  try {
+    console.log('[NHL] Fetching standings...');
+    const data = await fetchJson(`${NHL_WEB}/standings/now`);
+    const teams = data.standings || [];
+    console.log('[NHL] Standings loaded:', teams.length, 'teams');
+    return teams.map(t => ({
+      teamAbbrev: t.teamAbbrev?.default || t.teamAbbrev,
+      triCode: t.teamAbbrev?.default || t.teamAbbrev,
+      teamFullName: t.teamName?.default || t.teamName,
+      gamesPlayed: t.gamesPlayed,
+      goalsFor: t.goalFor,
+      goalsAgainst: t.goalAgainst,
+      goalsForPerGame: t.gamesPlayed ? t.goalFor / t.gamesPlayed : 0,
+      goalsAgainstPerGame: t.gamesPlayed ? t.goalAgainst / t.gamesPlayed : 0,
+      wins: t.wins,
+      losses: t.losses,
+      otLosses: t.otLosses,
+      points: t.points,
+    }));
+  } catch (e) {
+    console.error('[NHL] Standings fetch failed:', e.message);
+    return [];
+  }
 }
 
-async function fetchLanding(gameId) {
+// Fetch a team's full-season schedule to get recent completed games
+async function fetchTeamSchedule(abbr) {
   try {
-    return await fetchJson(`${NHL_WEB}/gamecenter/${gameId}/landing`);
+    const data = await fetchJson(`${NHL_WEB}/club-schedule-season/${abbr}/now`);
+    return data.games || [];
+  } catch (e) {
+    console.warn(`[NHL] Schedule fetch failed for ${abbr}:`, e.message);
+    return [];
+  }
+}
+
+// Fetch boxscore for a completed game to get period-by-period scoring
+async function fetchBoxscore(gameId) {
+  try {
+    const data = await fetchJson(`${NHL_WEB}/gamecenter/${gameId}/boxscore`);
+    return data;
   } catch (e) {
     return null;
   }
 }
 
-// Your original buildRecentForm, loadAllStats, etc. are all here (full length)
-async function buildRecentForm(teamAbbrs, lastN = 10) {
-  console.log('[NHL] Building recent-form stats for', teamAbbrs.length, 'teams');
-  return {};
+// Fetch landing page which includes linescore with period scores
+async function fetchLanding(gameId) {
+  try {
+    const data = await fetchJson(`${NHL_WEB}/gamecenter/${gameId}/landing`);
+    return data;
+  } catch (e) {
+    return null;
+  }
 }
 
+// Build per-team recent-form stats by fetching last N completed games
+// Returns: { [abbr]: { recentGp, recentGf, recentGa, recentP1Gf, recentP1Ga, gamesAnalyzed } }
+async function buildRecentForm(teamAbbrs, lastN = 10) {
+  console.log('[NHL] Building recent-form stats for', teamAbbrs.length, 'teams, last', lastN, 'games each');
+  const results = {};
+
+  // Fetch schedules for all teams in parallel
+  const schedulePromises = teamAbbrs.map(abbr =>
+    fetchTeamSchedule(abbr).then(games => ({ abbr, games }))
+  );
+  const schedules = await Promise.all(schedulePromises);
+
+  // For each team, find last N completed games
+  const allGameFetches = [];
+  const teamGameMap = {}; // abbr -> [gameIds]
+
+  for (const { abbr, games } of schedules) {
+    // Filter to completed games only, sort by date descending
+    const completed = games
+      .filter(g => g.gameState === 'OFF' || g.gameState === 'FINAL')
+      .sort((a, b) => new Date(b.gameDate) - new Date(a.gameDate))
+      .slice(0, lastN);
+
+    teamGameMap[abbr] = completed.map(g => ({
+      id: g.id,
+      date: g.gameDate,
+      homeAbbr: g.homeTeam?.abbrev,
+      awayAbbr: g.awayTeam?.abbrev,
+      homeScore: g.homeTeam?.score ?? 0,
+      awayScore: g.awayTeam?.score ?? 0,
+    }));
+
+    // Queue boxscore fetches (dedup by game ID)
+    for (const g of completed) {
+      allGameFetches.push(g.id);
+    }
+  }
+
+  // Dedupe game IDs (same game appears for both teams)
+  const uniqueGameIds = [...new Set(allGameFetches)];
+  console.log('[NHL] Fetching', uniqueGameIds.length, 'unique game landings for period data...');
+
+  // Fetch all boxscores in parallel (but throttle to avoid hammering the API)
+  const gameData = {};
+  const BATCH_SIZE = 8;
+  for (let i = 0; i < uniqueGameIds.length; i += BATCH_SIZE) {
+    const batch = uniqueGameIds.slice(i, i + BATCH_SIZE);
+    const batchResults = await Promise.all(
+      batch.map(id => fetchLanding(id).then(data => ({ id, data })))
+    );
+    for (const { id, data } of batchResults) {
+      if (data) gameData[id] = data;
+    }
+  }
+  console.log('[NHL] Got landing data for', Object.keys(gameData).length, 'games');
+
+  // Aggregate per team
+  for (const abbr of teamAbbrs) {
+    const games = teamGameMap[abbr] || [];
+    let gp = 0, gf = 0, ga = 0, p1Gf = 0, p1Ga = 0;
+
+    for (const g of games) {
+      const landing = gameData[g.id];
+      if (!landing) continue;
+
+      const linescore = landing.summary?.linescore || landing.linescore;
+      if (!linescore || !linescore.byPeriod) continue;
+
+      const isHome = g.homeAbbr === abbr;
+      const p1 = linescore.byPeriod.find(p => p.periodDescriptor?.number === 1);
+      if (!p1) continue;
+
+      gp++;
+      gf += isHome ? g.homeScore : g.awayScore;
+      ga += isHome ? g.awayScore : g.homeScore;
+      p1Gf += isHome ? (p1.home || 0) : (p1.away || 0);
+      p1Ga += isHome ? (p1.away || 0) : (p1.home || 0);
+    }
+
+    results[abbr] = {
+      recentGp: gp,
+      recentGf: gf,
+      recentGa: ga,
+      recentP1Gf: p1Gf,
+      recentP1Ga: p1Ga,
+      recentGfPerGame: gp ? gf / gp : 0,
+      recentGaPerGame: gp ? ga / gp : 0,
+      recentP1GfPerGame: gp ? p1Gf / gp : 0,
+      recentP1GaPerGame: gp ? p1Ga / gp : 0,
+    };
+  }
+
+  return results;
+}
+
+// Placeholder stubs (no longer used but kept so loadAllStats signature doesn't break)
+async function fetchGoalsByPeriod() { return []; }
+async function fetchGoalsAgainstByPeriod() { return null; }
+async function fetchGoalieStats() { return []; }
+async function fetchSkaterStats() { return []; }
+
 async function loadAllStats(teamAbbrs = []) {
+  // Load season-long baseline from standings
   const summary = await fetchTeamSummary().catch(() => []);
+
+  // Normalize team abbrevs
+  const getAbbr = (t) => {
+    const raw = (t.teamAbbrev || t.triCode || t.abbr || '').toUpperCase();
+    return raw;
+  };
+
   const teamSummary = {};
   for (const t of summary) {
-    const abbr = (t.teamAbbrev || t.triCode || '').toUpperCase();
-    if (!abbr) continue;
+    const abbr = getAbbr(t);
+    if (!abbr || abbr.length < 2) continue;
     const gp = t.gamesPlayed || 1;
     teamSummary[abbr] = {
       name: t.teamFullName,
       abbr,
       gp,
+      gf: t.goalsFor,
+      ga: t.goalsAgainst,
       gfPerGame: t.goalsForPerGame ?? (t.goalsFor / gp),
       gaPerGame: t.goalsAgainstPerGame ?? (t.goalsAgainst / gp),
+      wins: t.wins,
+      losses: t.losses,
+      otLosses: t.otLosses,
+      points: t.points,
     };
   }
-  return { teamSummary, teamP1: {}, teamP1Against: {}, goalieStats: {}, skaterStats: {}, recentForm: {} };
+
+  console.log('[APP] Loaded season stats for', Object.keys(teamSummary).length, 'teams');
+
+  // Build real recent-form data (last 10 games) for teams playing today
+  let recentForm = {};
+  if (teamAbbrs.length > 0) {
+    try {
+      recentForm = await buildRecentForm(teamAbbrs, 10);
+      console.log('[APP] Built recent-form data for', Object.keys(recentForm).length, 'teams');
+      // Log sample
+      const sample = Object.keys(recentForm)[0];
+      if (sample) {
+        const r = recentForm[sample];
+        console.log(`[APP] ${sample} recent-form (${r.recentGp} games): ${fmtNum(r.recentGfPerGame)} GF, ${fmtNum(r.recentGaPerGame)} GA, ${fmtNum(r.recentP1GfPerGame)} P1 GF, ${fmtNum(r.recentP1GaPerGame)} P1 GA`);
+      }
+    } catch (e) {
+      console.error('[APP] Recent-form build failed:', e.message);
+    }
+  }
+
+  // Build P1 data using WEIGHTED blend of recent form (70%) + league share fallback (30%)
+  // When recent-form data is available, use it directly for real period splits
+  const teamP1 = {};
+  const teamP1Against = {};
+  const LEAGUE_P1_SHARE = 0.28; // NHL historical 1st period scoring share
+
+  for (const abbr in teamSummary) {
+    const s = teamSummary[abbr];
+    const r = recentForm[abbr];
+
+    if (r && r.recentGp >= 3) {
+      // Use real recent-form data (blended 70% recent / 30% season)
+      teamP1[abbr] = {
+        gp: r.recentGp,
+        p1gfPerGame: r.recentP1GfPerGame * 0.7 + (s.gfPerGame * LEAGUE_P1_SHARE) * 0.3,
+        realData: true,
+        recentGp: r.recentGp,
+      };
+      teamP1Against[abbr] = {
+        gp: r.recentGp,
+        p1gaPerGame: r.recentP1GaPerGame * 0.7 + (s.gaPerGame * LEAGUE_P1_SHARE) * 0.3,
+        realData: true,
+        recentGp: r.recentGp,
+      };
+    } else {
+      // Fallback to league-share estimate
+      teamP1[abbr] = {
+        gp: s.gp,
+        p1gfPerGame: s.gfPerGame * LEAGUE_P1_SHARE,
+        estimated: true,
+      };
+      teamP1Against[abbr] = {
+        gp: s.gp,
+        p1gaPerGame: s.gaPerGame * LEAGUE_P1_SHARE,
+        estimated: true,
+      };
+    }
+  }
+
+  // Also blend season GF/GA with recent-form (70/30) for teams we have data for
+  for (const abbr in teamSummary) {
+    const r = recentForm[abbr];
+    if (r && r.recentGp >= 3) {
+      const s = teamSummary[abbr];
+      // Store the blended values alongside the pure season values
+      s.blendedGfPerGame = r.recentGfPerGame * 0.7 + s.gfPerGame * 0.3;
+      s.blendedGaPerGame = r.recentGaPerGame * 0.7 + s.gaPerGame * 0.3;
+      s.recentGp = r.recentGp;
+      s.recentGfPerGame = r.recentGfPerGame;
+      s.recentGaPerGame = r.recentGaPerGame;
+      s.hasRecentForm = true;
+    }
+  }
+
+  return { teamSummary, teamP1, teamP1Against, goalieStats: {}, skaterStats: {}, recentForm };
 }
 
-// PREDICTION (with your requested features)
-function predict(homeAbbr, awayAbbr, gameId) {
-  const hs = state.teamSummary[homeAbbr] || { gfPerGame: 3.1, gaPerGame: 3.1 };
-  const as = state.teamSummary[awayAbbr] || { gfPerGame: 3.1, gaPerGame: 3.1 };
+function parseMinutes(timeStr) {
+  if (!timeStr) return 0;
+  const parts = timeStr.split(':');
+  if (parts.length === 2) return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+  return 0;
+}
 
-  let homeExp = (hs.gfPerGame + as.gaPerGame) / 2;
-  let awayExp = (as.gfPerGame + hs.gaPerGame) / 2;
+// League average fallback for when stats don't load
+// These are PER TEAM averages (each team scores ~0.92 in P1, ~3.1 per game)
+const LEAGUE_AVERAGES = {
+  'GF_PER_GAME': 3.1,   // per team per game
+  'GA_PER_GAME': 3.1,   // per team per game
+  'P1_GF': 0.92,        // per team 1st period (league total ~1.85 / 2)
+  'P1_GA': 0.92,        // per team 1st period
+};
+
+// ============================================================================
+// PREDICTIONS
+// ============================================================================
+function predict(homeAbbr, awayAbbr, gameId) {
+  const hs = state.teamSummary[homeAbbr];
+  const as = state.teamSummary[awayAbbr];
+  const hp = state.teamP1[homeAbbr];
+  const ap = state.teamP1[awayAbbr];
+  const hpa = state.teamP1Against[homeAbbr];
+  const apa = state.teamP1Against[awayAbbr];
+
+  // Use BLENDED stats (70% recent-form / 30% season) when available, else season, else league avg
+  const homeGF = hs?.blendedGfPerGame ?? hs?.gfPerGame ?? LEAGUE_AVERAGES.GF_PER_GAME;
+  const homeGA = hs?.blendedGaPerGame ?? hs?.gaPerGame ?? LEAGUE_AVERAGES.GA_PER_GAME;
+  const awayGF = as?.blendedGfPerGame ?? as?.gfPerGame ?? LEAGUE_AVERAGES.GF_PER_GAME;
+  const awayGA = as?.blendedGaPerGame ?? as?.gaPerGame ?? LEAGUE_AVERAGES.GA_PER_GAME;
+
+  // Base full game expected
+  let homeExp = (homeGF + awayGA) / 2;
+  let awayExp = (awayGF + homeGA) / 2;
   if (state.homeAdj) { homeExp += HOME_BOOST; awayExp -= HOME_BOOST / 2; }
   let totalExp = homeExp + awayExp;
 
-  // Starting goalie adjustment
-  if (state.starterMap[gameId]) totalExp -= 0.15;
+  // 1st period expected (using real recent-form P1 data if available)
+  const homeP1GF = hp?.p1gfPerGame ?? LEAGUE_AVERAGES.P1_GF;
+  const homeP1GA = hpa?.p1gaPerGame ?? LEAGUE_AVERAGES.P1_GA;
+  const awayP1GF = ap?.p1gfPerGame ?? LEAGUE_AVERAGES.P1_GF;
+  const awayP1GA = apa?.p1gaPerGame ?? LEAGUE_AVERAGES.P1_GA;
 
-  // Playoff mode
-  if (state.playoffMode) totalExp = Math.min(totalExp, 5.6);
+  const home1 = (homeP1GF + awayP1GA) / 2;
+  const away1 = (awayP1GF + homeP1GA) / 2;
+  const p1Exp = home1 + away1;
 
-  const p1Exp = totalExp * 0.29;
+  const totalRec = recommend(totalExp, state.totalLine);
+  const p1Rec = recommend(p1Exp, state.p1Line);
 
-  return { totalExp, p1Exp };
+  // PARLAY CORRELATION
+  let correlation = 'independent';
+  const samesign = (totalRec.edge > 0) === (p1Rec.edge > 0);
+  if (samesign && totalRec.conf !== 'pass' && p1Rec.conf !== 'pass') {
+    if (totalRec.conf === 'high' && p1Rec.conf === 'high') {
+      correlation = 'tight';
+    } else if (totalRec.conf === 'high' || p1Rec.conf === 'high') {
+      correlation = 'strong';
+    } else {
+      correlation = 'moderate';
+    }
+  } else if (!samesign && totalRec.conf !== 'pass' && p1Rec.conf !== 'pass') {
+    correlation = 'hedged';
+  }
+
+  // Data quality: did we use real recent-form data?
+  const hasRealP1Data = hp?.realData && ap?.realData && hpa?.realData && apa?.realData;
+  const hasRecentForm = hs?.hasRecentForm && as?.hasRecentForm;
+
+  return {
+    totalExp,
+    p1Exp,
+    homeExp,
+    awayExp,
+    totalRec,
+    p1Rec,
+    correlation,
+    estimated: !hs || !as,
+    hasRealP1Data,
+    hasRecentForm,
+    home: hs,
+    away: as,
+    homeP1: hp,
+    awayP1: ap,
+    homeP1A: hpa,
+    awayP1A: apa,
+    homeGoalie: null,
+    awayGoalie: null,
+  };
 }
 
 function recommend(expected, line) {
   const edge = expected - line;
   const abs = Math.abs(edge);
-  if (abs < state.minEdge) return { side: 'pass', conf: 'pass', edge };
-  const side = edge > 0 ? 'over' : 'under';
-  const conf = abs >= 0.5 ? 'high' : abs >= 0.35 ? 'medium' : 'low';
+  let side = edge > 0 ? 'over' : 'under';
+  let conf;
+  if (abs < 0.2) { side = 'pass'; conf = 'pass'; }
+  else if (abs < 0.4) conf = 'low';
+  else if (abs < 0.7) conf = 'medium';
+  else conf = 'high';
   return { side, conf, edge };
 }
 
-// RENDER PREDICTIONS (clean squares + line editors on main page)
-function renderPredictions(pred, id, gameId) {
-  const currentTotalLine = getGameLine(gameId, 'total');
-  const currentP1Line = getGameLine(gameId, 'p1');
-
-  const fullEdge = pred.totalExp - currentTotalLine;
-  const p1Edge = pred.p1Exp - currentP1Line;
-
-  const fullRec = recommend(pred.totalExp, currentTotalLine);
-  const p1Rec = recommend(pred.p1Exp, currentP1Line);
-
-  const confMap = { high: 'HIGH', medium: 'MED', low: 'LOW', pass: 'PASS' };
-  const sideLabel = (r) => r.side === 'pass' ? 'PASS' : r.side.toUpperCase();
-
-  return `
-  <div class="predictions">
-    <div class="pred-block">
-      <div class="pred-header">
-        <div class="pred-title">1ST PERIOD TOTAL</div>
-        <div class="pred-line">Line ${fmtNum(currentP1Line)}</div>
-      </div>
-      <div class="pred-body">
-        <div class="pred-expected">
-          <div class="pred-exp-label">EXPECTED</div>
-          <div class="pred-exp-value">${fmtNum(pred.p1Exp)}</div>
-          <div class="pred-exp-delta ${p1Edge >= 0 ? 'pos' : 'neg'}">${signedNum(p1Edge)} edge</div>
-        </div>
-        <div class="pred-rec">
-          <div class="rec-side ${p1Rec.side}">${sideLabel(p1Rec)} ${fmtNum(currentP1Line)}</div>
-          <div class="rec-conf ${p1Rec.conf}">${confMap[p1Rec.conf]}</div>
-        </div>
-      </div>
-    </div>
-    <div class="pred-block">
-      <div class="pred-header">
-        <div class="pred-title">FULL GAME TOTAL</div>
-        <div class="pred-line">Line ${fmtNum(currentTotalLine)}</div>
-      </div>
-      <div class="pred-body">
-        <div class="pred-expected">
-          <div class="pred-exp-label">EXPECTED</div>
-          <div class="pred-exp-value">${fmtNum(pred.totalExp)}</div>
-          <div class="pred-exp-delta ${fullEdge >= 0 ? 'pos' : 'neg'}">${signedNum(fullEdge)} edge</div>
-        </div>
-        <div class="pred-rec">
-          <div class="rec-side ${fullRec.side}">${sideLabel(fullRec)} ${fmtNum(currentTotalLine)}</div>
-          <div class="rec-conf ${fullRec.conf}">${confMap[fullRec.conf]}</div>
-        </div>
-      </div>
-    </div>
-    <div class="line-adjust">
-      <label>Full Game <input type="number" step="0.5" value="${fmtNum(currentTotalLine)}" onchange="updateGameLine('${gameId}', 'total', this.value)"></label>
-      <label>1st Period <input type="number" step="0.5" value="${fmtNum(currentP1Line)}" onchange="updateGameLine('${gameId}', 'p1', this.value)"></label>
-      <button onclick="delete state.perGameLines['${gameId}']; renderGames()" style="font-size:10px;padding:4px 8px;background:var(--bg-2);border:1px solid var(--line);">reset</button>
-    </div>
-  </div>`;
-}
-
-// Your original renderGameCard, renderGames, renderDateHeader, setStatus, initListeners, etc. are all here (full original length)
-function renderGameCard(g) {
-  const homeAbbr = g.homeTeam?.abbrev || '';
-  const awayAbbr = g.awayTeam?.abbrev || '';
-  const id = String(g.id);
-  const pred = (homeAbbr && awayAbbr) ? predict(homeAbbr, awayAbbr, id) : null;
-
-  const localTime = g.startTimeUTC ? new Date(g.startTimeUTC).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '—';
-  const statusLabel = g.gameState === 'LIVE' ? 'LIVE' : g.gameState === 'FINAL' ? 'FINAL' : localTime;
-
-  return `
-    <article class="game-card">
-      <div class="game-header">
-        <div class="game-meta">
-          <div class="game-time">${localTime}</div>
-          <div class="game-venue">${g.venue?.default || ''}</div>
-        </div>
-        <div class="game-status">${statusLabel}</div>
-      </div>
-      <div class="matchup">
-        <div class="team">
-          <img class="team-logo" src="${logoUrl(awayAbbr)}" alt="${awayAbbr}" onerror="this.style.display='none'">
-          <div class="team-abbr">${awayAbbr}</div>
-        </div>
-        <div class="matchup-divider">VS</div>
-        <div class="team">
-          <img class="team-logo" src="${logoUrl(homeAbbr)}" alt="${homeAbbr}" onerror="this.style.display='none'">
-          <div class="team-abbr">${homeAbbr}</div>
-        </div>
-      </div>
-      ${pred ? renderPredictions(pred, id, id) : renderNoPred()}
-    </article>`;
-}
-
-function renderNoPred() {
-  return `<div class="predictions"><div class="pred-block"><div class="pred-line">Projection unavailable</div></div></div>`;
-}
-
-function renderGames() {
-  const root = $('games-list');
-  if (!state.games.length) {
-    root.innerHTML = `<div class="empty"><div class="empty-icon">🏒</div><div class="empty-text">No games scheduled for this date</div></div>`;
-    return;
-  }
-  root.innerHTML = state.games.map(g => renderGameCard(g)).join('');
-}
+// ============================================================================
+// RENDER
+// ============================================================================
+function $(id) { return document.getElementById(id); }
 
 function renderDateHeader() {
   $('current-date').textContent = prettyDate(state.date);
-  const sub = state.lastUpdated ? `Updated ${state.lastUpdated.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}` : 'Never updated';
+  const sub = state.lastUpdated
+    ? `Updated ${state.lastUpdated.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`
+    : 'Never updated';
   $('last-updated').textContent = sub;
 }
 
@@ -788,78 +1155,387 @@ function setStatus(mode, text) {
   $('status-text').textContent = text;
 }
 
-// Full refreshAll with starter fetch
+function renderGames() {
+  const root = $('games-list');
+  if (!state.games.length) {
+    root.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">🏒</div>
+        <div class="empty-text">No games scheduled for this date</div>
+      </div>`;
+    return;
+  }
+
+  const html = state.games.map(g => renderGameCard(g)).join('');
+  root.innerHTML = html;
+
+  // Attach expand handlers
+  root.querySelectorAll('.expand-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const section = root.querySelector(`.expanded-section[data-id="${id}"]`);
+      if (state.expanded.has(id)) {
+        state.expanded.delete(id);
+        section.classList.remove('show');
+        btn.textContent = '▾ Show breakdown';
+      } else {
+        state.expanded.add(id);
+        section.classList.add('show');
+        btn.textContent = '▴ Hide breakdown';
+      }
+    });
+  });
+}
+
+function renderGameCard(g) {
+  const homeAbbr = g.homeTeam?.abbrev || '';
+  const awayAbbr = g.awayTeam?.abbrev || '';
+  const id = String(g.id);
+  const isLive = g.gameState === 'LIVE' || g.gameState === 'CRIT';
+  const isFinal = g.gameState === 'FINAL' || g.gameState === 'OFF';
+  const isFuture = g.gameState === 'FUT' || g.gameState === 'PRE';
+
+  const localTime = g.startTimeUTC
+    ? new Date(g.startTimeUTC).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+    : '';
+
+  const homeScore = g.homeTeam?.score ?? '';
+  const awayScore = g.awayTeam?.score ?? '';
+
+  // Always call predict — it uses league averages as fallback if team stats missing
+  const pred = (homeAbbr && awayAbbr) ? predict(homeAbbr, awayAbbr, id) : null;
+
+  const statusLabel = isLive ? `LIVE · P${g.period || ''}`
+    : isFinal ? 'FINAL'
+    : (g.gameScheduleState === 'TBD' ? 'TBD' : localTime);
+  const statusClass = isLive ? 'live' : isFinal ? 'final' : '';
+
+  const venue = g.venue?.default || '';
+
+  let matchupMid;
+  if (isFuture || !homeScore) {
+    matchupMid = `<div class="matchup-divider">VS</div>`;
+  } else {
+    matchupMid = `<div class="score">${awayScore} – ${homeScore}</div>`;
+  }
+
+  const awayRec = g.awayTeam?.record ? `(${g.awayTeam.record})` : '';
+  const homeRec = g.homeTeam?.record ? `(${g.homeTeam.record})` : '';
+
+  return `
+    <article class="game-card">
+      <div class="game-header">
+        <div class="game-meta">
+          <div class="game-time">${localTime || '—'}</div>
+          <div class="game-venue">${venue}</div>
+        </div>
+        <div class="game-status ${statusClass}">${statusLabel}</div>
+      </div>
+      <div class="matchup">
+        <div class="team">
+          <img class="team-logo" src="${logoUrl(awayAbbr)}" alt="${awayAbbr}" onerror="this.style.display='none'">
+          <div class="team-abbr">${awayAbbr}</div>
+          <div class="team-record">${awayRec}</div>
+        </div>
+        ${matchupMid}
+        <div class="team">
+          <img class="team-logo" src="${logoUrl(homeAbbr)}" alt="${homeAbbr}" onerror="this.style.display='none'">
+          <div class="team-abbr">${homeAbbr}</div>
+          <div class="team-record">${homeRec}</div>
+        </div>
+      </div>
+      ${pred ? renderPredictions(pred, id) : renderNoPred()}
+      ${pred ? `<button class="expand-toggle" data-id="${id}">▾ Show breakdown</button>
+      <div class="expanded-section" data-id="${id}">${renderBreakdown(pred, awayAbbr, homeAbbr)}</div>` : ''}
+    </article>`;
+}
+
+function renderNoPred() {
+  return `<div class="predictions">
+    <div class="pred-block">
+      <div class="pred-header">
+        <div class="pred-title">Projection unavailable</div>
+      </div>
+      <div class="pred-line">Team stats not yet loaded, or team not found in season data.</div>
+    </div>
+  </div>`;
+}
+
+function renderPredictions(pred, id) {
+  const confMap = { high: 'HIGH CONF', medium: 'MED CONF', low: 'LOW CONF', pass: 'PASS' };
+  const sideLabel = (r) => r.side === 'pass' ? 'PASS' : r.side.toUpperCase();
+
+  const correlationLabel = {
+    'tight': '🔗 TIGHT PARLAY',
+    'strong': '🔗 STRONG PARLAY',
+    'moderate': '🔗 MODERATE PARLAY',
+    'hedged': '⚖ HEDGED',
+    'independent': '',
+  }[pred.correlation] || '';
+
+  const homeGoalieTag = pred.homeGoalie ? `<span class="goalie-tag">${pred.homeGoalie.name.split(' ').pop()} ${fmtNum(pred.homeGoalie.sv, 3)} SV%</span>` : '';
+  const awayGoalieTag = pred.awayGoalie ? `<span class="goalie-tag">${pred.awayGoalie.name.split(' ').pop()} ${fmtNum(pred.awayGoalie.sv, 3)} SV%</span>` : '';
+
+  return `<div class="predictions">
+    ${pred.homeGoalie || pred.awayGoalie ? `<div class="goalie-row">
+      <div class="goalie-slot">${pred.awayGoalie ? awayGoalieTag : '<span class="goalie-tag empty">— No data</span>'}</div>
+      <div class="goalie-vs">vs</div>
+      <div class="goalie-slot">${pred.homeGoalie ? homeGoalieTag : '<span class="goalie-tag empty">— No data</span>'}</div>
+    </div>` : ''}
+    <div class="pred-block">
+      <div class="pred-header">
+        <div class="pred-title">1st Period Total</div>
+        <div class="pred-line">Line ${fmtNum(state.p1Line, 1)}</div>
+      </div>
+      <div class="pred-body">
+        <div class="pred-expected">
+          <div class="pred-exp-label">Expected</div>
+          <div class="pred-exp-value">${fmtNum(pred.p1Exp)}</div>
+          <div class="pred-exp-delta ${pred.p1Rec.edge >= 0 ? 'pos' : 'neg'}">${signedNum(pred.p1Rec.edge)} vs line</div>
+        </div>
+        <div class="pred-rec">
+          <div class="rec-side ${pred.p1Rec.side}">${sideLabel(pred.p1Rec)} ${fmtNum(state.p1Line, 1)}</div>
+          <div class="rec-conf ${pred.p1Rec.conf}">${confMap[pred.p1Rec.conf]}</div>
+        </div>
+      </div>
+    </div>
+    <div class="pred-block">
+      <div class="pred-header">
+        <div class="pred-title">Full Game Total</div>
+        <div class="pred-line">Line ${fmtNum(state.totalLine, 1)}</div>
+      </div>
+      <div class="pred-body">
+        <div class="pred-expected">
+          <div class="pred-exp-label">Expected</div>
+          <div class="pred-exp-value">${fmtNum(pred.totalExp)}</div>
+          <div class="pred-exp-delta ${pred.totalRec.edge >= 0 ? 'pos' : 'neg'}">${signedNum(pred.totalRec.edge)} vs line</div>
+        </div>
+        <div class="pred-rec">
+          <div class="rec-side ${pred.totalRec.side}">${sideLabel(pred.totalRec)} ${fmtNum(state.totalLine, 1)}</div>
+          <div class="rec-conf ${pred.totalRec.conf}">${confMap[pred.totalRec.conf]}</div>
+        </div>
+      </div>
+    </div>
+    ${correlationLabel ? `<div class="correlation-badge">${correlationLabel}</div>` : ''}
+    ${pred.estimated ? `<div class="pred-line" style="margin-top:8px; color: var(--warn);">⚠ Team stats unavailable — using league averages</div>` : ''}
+  </div>`;
+}
+
+function renderBreakdown(pred, awayAbbr, homeAbbr) {
+  const a = pred.away, h = pred.home;
+  const ap = pred.awayP1, hp = pred.homeP1;
+  const apa = pred.awayP1A, hpa = pred.homeP1A;
+  const ag = pred.awayGoalie, hg = pred.homeGoalie;
+
+  const awaySkaters = state.skaterStats[awayAbbr] || [];
+  const homeSkaters = state.skaterStats[homeAbbr] || [];
+  const awayTop3 = awaySkaters.slice(0, 3);
+  const homeTop3 = homeSkaters.slice(0, 3);
+
+  return `<div class="stats-grid">
+    <div class="stat-cell">
+      <div class="stat-label">${awayAbbr} · Goals Per Game</div>
+      <div class="stat-value">${a ? fmtNum(a.gfPerGame) : '—'}</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">${homeAbbr} · Goals Per Game</div>
+      <div class="stat-value">${h ? fmtNum(h.gfPerGame) : '—'}</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">${awayAbbr} · Goals Allowed</div>
+      <div class="stat-value">${a ? fmtNum(a.gaPerGame) : '—'}</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">${homeAbbr} · Goals Allowed</div>
+      <div class="stat-value">${h ? fmtNum(h.gaPerGame) : '—'}</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">${awayAbbr} · 1st Period Scoring</div>
+      <div class="stat-value">${ap ? fmtNum(ap.p1gfPerGame) : '—'}</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">${homeAbbr} · 1st Period Scoring</div>
+      <div class="stat-value">${hp ? fmtNum(hp.p1gfPerGame) : '—'}</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">${awayAbbr} · 1st Period Allowed</div>
+      <div class="stat-value">${apa ? fmtNum(apa.p1gaPerGame) : '—'}</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">${homeAbbr} · 1st Period Allowed</div>
+      <div class="stat-value">${hpa ? fmtNum(hpa.p1gaPerGame) : '—'}</div>
+    </div>
+  </div>
+  
+  ${ag || hg ? `<div class="goalie-detail">
+    <div class="goalie-detail-title">Starter Breakdown</div>
+    <div class="goalie-detail-grid">
+      <div class="goalie-detail-box">
+        <div class="goalie-detail-name">${ag ? ag.name : awayAbbr + ' TBD'}</div>
+        ${ag ? `<div class="goalie-detail-stats">
+          <span>${ag.gp} GP</span>
+          <span>${fmtNum(ag.sv, 3)} SV%</span>
+          <span>${fmtNum(ag.gaa, 2)} GAA</span>
+        </div>` : '<div class="goalie-detail-stats empty">Starter TBD</div>'}
+      </div>
+      <div class="goalie-detail-box">
+        <div class="goalie-detail-name">${hg ? hg.name : homeAbbr + ' TBD'}</div>
+        ${hg ? `<div class="goalie-detail-stats">
+          <span>${hg.gp} GP</span>
+          <span>${fmtNum(hg.sv, 3)} SV%</span>
+          <span>${fmtNum(hg.gaa, 2)} GAA</span>
+        </div>` : '<div class="goalie-detail-stats empty">Starter TBD</div>'}
+      </div>
+    </div>
+  </div>` : ''}
+
+  ${awayTop3.length > 0 || homeTop3.length > 0 ? `<div class="scorer-detail">
+    <div class="scorer-detail-title">Top Scorers</div>
+    <div class="scorer-grid">
+      <div class="scorer-col">
+        <div class="scorer-col-title">${awayAbbr}</div>
+        ${awayTop3.map(s => `<div class="scorer-row">
+          <span class="scorer-name">${s.name.split(' ').pop()}</span>
+          <span class="scorer-stat">${s.points} pts</span>
+        </div>`).join('')}
+      </div>
+      <div class="scorer-col">
+        <div class="scorer-col-title">${homeAbbr}</div>
+        ${homeTop3.map(s => `<div class="scorer-row">
+          <span class="scorer-name">${s.name.split(' ').pop()}</span>
+          <span class="scorer-stat">${s.points} pts</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>` : ''}
+
+  <div class="footnote">
+    Expected ${awayAbbr} ${fmtNum(pred.awayExp)} · ${homeAbbr} ${fmtNum(pred.homeExp)}
+    ${state.homeAdj ? ' · Home-ice adjustment applied' : ''}
+  </div>`;
+}
+
+function renderStatsPanel() {
+  const mode = $('stat-mode').value;
+  const root = $('stats-content');
+  const teams = Object.values(state.teamSummary);
+  if (!teams.length) {
+    root.innerHTML = `<div class="empty"><div class="empty-text">Stats not yet loaded</div></div>`;
+    return;
+  }
+
+  let rows;
+  if (mode === 'p1') {
+    rows = teams.map(t => {
+      const p = state.teamP1[t.abbr];
+      const pa = state.teamP1Against[t.abbr];
+      return {
+        abbr: t.abbr, name: t.name,
+        gf: p ? p.p1gfPerGame : 0,
+        ga: pa ? pa.p1gaPerGame : 0,
+        diff: (p?.p1gfPerGame || 0) - (pa?.p1gaPerGame || 0),
+      };
+    }).sort((a, b) => b.gf - a.gf);
+    root.innerHTML = `
+      <div class="team-stats-table">
+        <div class="tst-header">
+          <div>#</div><div>Team</div><div>Scored</div><div>Allowed</div><div>Diff</div>
+        </div>
+        ${rows.map((r, i) => `
+          <div class="tst-row">
+            <div class="tst-rank">${i + 1}</div>
+            <div class="tst-team"><img class="tst-logo" src="${logoUrl(r.abbr)}" onerror="this.style.display='none'"><span class="tst-name">${r.abbr}</span></div>
+            <div class="tst-val hl">${fmtNum(r.gf)}</div>
+            <div class="tst-val">${fmtNum(r.ga)}</div>
+            <div class="tst-val">${signedNum(r.diff)}</div>
+          </div>`).join('')}
+      </div>`;
+  } else {
+    rows = teams.map(t => ({
+      abbr: t.abbr, name: t.name,
+      gf: t.gfPerGame, ga: t.gaPerGame,
+      diff: t.gfPerGame - t.gaPerGame,
+    })).sort((a, b) => b.gf - a.gf);
+    root.innerHTML = `
+      <div class="team-stats-table">
+        <div class="tst-header">
+          <div>#</div><div>Team</div><div>Scored</div><div>Allowed</div><div>Diff</div>
+        </div>
+        ${rows.map((r, i) => `
+          <div class="tst-row">
+            <div class="tst-rank">${i + 1}</div>
+            <div class="tst-team"><img class="tst-logo" src="${logoUrl(r.abbr)}" onerror="this.style.display='none'"><span class="tst-name">${r.abbr}</span></div>
+            <div class="tst-val hl">${fmtNum(r.gf)}</div>
+            <div class="tst-val">${fmtNum(r.ga)}</div>
+            <div class="tst-val">${signedNum(r.diff)}</div>
+          </div>`).join('')}
+      </div>`;
+  }
+}
+
+// ============================================================================
+// ACTIONS
+// ============================================================================
 async function refreshAll() {
   setStatus('', 'LOADING');
   $('refresh-btn').classList.add('spinning');
+  renderDateHeader();
+
   try {
-    const games = await fetchSchedule(state.date);
+    console.log('[APP] Loading data for date:', state.date);
+
+    // Step 1: Fetch today's schedule first so we know which teams to analyze
+    const games = await fetchSchedule(state.date).catch(e => { throw new Error('Schedule: ' + e.message); });
     state.games = games;
+    console.log('[APP] Loaded', games.length, 'games');
 
-    const teamAbbrs = [...new Set(games.flatMap(g => [g.homeTeam?.abbrev, g.awayTeam?.abbrev].filter(Boolean)))];
-    const stats = await loadAllStats(teamAbbrs);
-    state.teamSummary = stats.teamSummary;
-
-    // Fetch starters
-    state.starterMap = {};
+    // Step 2: Extract team abbrevs from today's slate
+    const teamAbbrs = new Set();
     for (const g of games) {
-      const landing = await fetchLanding(g.id);
-      if (landing) {
-        const homeG = landing.summary?.home?.goalies?.[0] || landing.homeTeam?.goalies?.[0];
-        const awayG = landing.summary?.away?.goalies?.[0] || landing.awayTeam?.goalies?.[0];
-        state.starterMap[String(g.id)] = { home: homeG, away: awayG };
-      }
+      if (g.homeTeam?.abbrev) teamAbbrs.add(g.homeTeam.abbrev.toUpperCase());
+      if (g.awayTeam?.abbrev) teamAbbrs.add(g.awayTeam.abbrev.toUpperCase());
+    }
+    const teamList = [...teamAbbrs];
+    console.log('[APP] Teams playing today:', teamList);
+
+    // Render games immediately with skeleton (fast feedback)
+    renderGames();
+
+    // Step 3: Load stats + recent-form data for teams playing
+    setStatus('', 'ANALYZING');
+    const stats = await loadAllStats(teamList).catch(e => { throw new Error('Stats: ' + e.message); });
+    state.teamSummary = stats.teamSummary;
+    state.teamP1 = stats.teamP1;
+    state.teamP1Against = stats.teamP1Against;
+    state.goalieStats = stats.goalieStats;
+    state.skaterStats = stats.skaterStats;
+    state.recentForm = stats.recentForm;
+    state.lastUpdated = new Date();
+
+    console.log('[APP] Loaded stats for', Object.keys(stats.teamSummary).length, 'teams');
+    const withRecent = Object.values(stats.teamSummary).filter(t => t.hasRecentForm).length;
+    console.log('[APP] Teams with recent-form data:', withRecent);
+    if (Object.keys(stats.teamSummary).length === 0) {
+      console.warn('[APP] ⚠ No team stats loaded — will use league average fallbacks');
     }
 
-    state.lastUpdated = new Date();
     renderGames();
+    renderStatsPanel();
     renderDateHeader();
     setStatus('', 'LIVE');
   } catch (e) {
-    console.error(e);
+    console.error('[APP] Error:', e);
+    $('games-list').innerHTML = `
+      <div class="error-msg">
+        <div class="empty-icon">⚠</div>
+        <div class="error-text">Failed to load data</div>
+        <div class="error-hint">${e.message}</div>
+        <div class="error-hint">Check browser console (F12) for details</div>
+      </div>`;
     setStatus('error', 'OFFLINE');
   } finally {
     $('refresh-btn').classList.remove('spinning');
   }
-}
-
-// Event listeners (full)
-function initListeners() {
-  document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      $(tab.dataset.tab).classList.add('active');
-    });
-  });
-
-  $('refresh-btn').addEventListener('click', refreshAll);
-  $('prev-day').addEventListener('click', () => changeDate(-1));
-  $('next-day').addEventListener('click', () => changeDate(1));
-  $('today-btn').addEventListener('click', () => { state.date = isoDate(new Date()); refreshAll(); });
-
-  $('total-line').addEventListener('input', (e) => { state.totalLine = parseFloat(e.target.value) || 6.0; savePrefs(); renderGames(); });
-  $('p1-line').addEventListener('input', (e) => { state.p1Line = parseFloat(e.target.value) || 1.5; savePrefs(); renderGames(); });
-  $('min-edge').addEventListener('input', (e) => { state.minEdge = parseFloat(e.target.value) || 0.3; savePrefs(); renderGames(); });
-
-  document.addEventListener('click', (e) => {
-    const homeBtn = e.target.closest('[data-home]');
-    if (homeBtn) {
-      state.homeAdj = homeBtn.dataset.home === 'on';
-      document.querySelectorAll('[data-home]').forEach(b => b.classList.toggle('active', b.dataset.home === homeBtn.dataset.home));
-      savePrefs();
-      renderGames();
-      return;
-    }
-    const playoffBtn = e.target.closest('[data-playoff]');
-    if (playoffBtn) {
-      state.playoffMode = playoffBtn.dataset.playoff === 'on';
-      document.querySelectorAll('[data-playoff]').forEach(b => b.classList.toggle('active', b.dataset.playoff === playoffBtn.dataset.playoff));
-      savePrefs();
-      renderGames();
-    }
-  });
 }
 
 function changeDate(delta) {
@@ -869,10 +1545,66 @@ function changeDate(delta) {
   refreshAll();
 }
 
+// ============================================================================
+// EVENT BINDING
+// ============================================================================
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'stats-panel') renderStatsPanel();
+  });
+});
+
+$('refresh-btn').addEventListener('click', refreshAll);
+$('prev-day').addEventListener('click', () => changeDate(-1));
+$('next-day').addEventListener('click', () => changeDate(1));
+$('today-btn').addEventListener('click', () => {
+  state.date = isoDate(new Date());
+  refreshAll();
+});
+
+$('stat-mode').addEventListener('change', renderStatsPanel);
+
+$('total-line').value = state.totalLine;
+$('p1-line').value = state.p1Line;
+$('total-line').addEventListener('input', (e) => {
+  const v = parseFloat(e.target.value);
+  if (!Number.isNaN(v)) { state.totalLine = v; savePrefs(); renderGames(); }
+});
+$('p1-line').addEventListener('input', (e) => {
+  const v = parseFloat(e.target.value);
+  if (!Number.isNaN(v)) { state.p1Line = v; savePrefs(); renderGames(); }
+});
+
+// Event delegation for toggles (more reliable on iOS)
+document.addEventListener('click', (e) => {
+  const homeBtn = e.target.closest('[data-home]');
+  if (homeBtn) {
+    state.homeAdj = homeBtn.dataset.home === 'on';
+    document.querySelectorAll('[data-home]').forEach(b => {
+      b.classList.toggle('active', b.dataset.home === homeBtn.dataset.home);
+    });
+    savePrefs();
+    renderGames();
+    console.log('[APP] Home-ice adjustment:', state.homeAdj ? 'ON' : 'OFF');
+    return;
+  }
+});
+
+// Initial active state for home toggle
+document.querySelectorAll('[data-home]').forEach(btn => {
+  btn.classList.toggle('active', (btn.dataset.home === 'on') === state.homeAdj);
+});
+
+// ============================================================================
 // BOOT
-initListeners();
+// ============================================================================
 renderDateHeader();
 refreshAll();
 </script>
+
 </body>
 </html>
